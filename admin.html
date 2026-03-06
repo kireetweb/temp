@@ -70,15 +70,44 @@
             const { data, error } = await supabaseClient.from('complaints').select('*').order('created_at', { ascending: false });
             if (error) { console.error(error); return; }
 
+            // Generate secure, expiring URLs for the evidence
+            const complaintsWithUrls = await Promise.all(data.map(async (c) => {
+                let secureImageUrl = '#';
+                let secureAudioUrl = '#';
+
+                // Generate 1-hour secure URL for images
+                if (c.image_url) {
+                    if (c.image_url.startsWith('http')) { 
+                        secureImageUrl = c.image_url; // Failsafe for old test data
+                    } else {
+                        const { data: imgData } = await supabaseClient.storage.from('complaint-images').createSignedUrl(c.image_url, 3600);
+                        if (imgData) secureImageUrl = imgData.signedUrl;
+                    }
+                }
+
+                // Generate 1-hour secure URL for audio
+                if (c.audio_url) {
+                    if (c.audio_url.startsWith('http')) {
+                        secureAudioUrl = c.audio_url; // Failsafe for old test data
+                    } else {
+                        const { data: audData } = await supabaseClient.storage.from('complaint-audio').createSignedUrl(c.audio_url, 3600);
+                        if (audData) secureAudioUrl = audData.signedUrl;
+                    }
+                }
+
+                return { ...c, secureImageUrl, secureAudioUrl };
+            }));
+
+            // Render the dashboard
             const list = document.getElementById('complaints-list');
-            list.innerHTML = data.map(c => `
+            list.innerHTML = complaintsWithUrls.map(c => `
                 <div class="card">
                     <div class="meta">ID: ${c.id} | Date: ${new Date(c.created_at).toLocaleString()} | IP: ${c.ip_address || 'N/A'} | Loc: ${c.latitude ? c.latitude+','+c.longitude : 'N/A'}</div>
                     <p>${c.complaint_text || '<i>No text provided</i>'}</p>
                     <div class="evidence-icons">
                         <span class="icon ${c.complaint_text ? 'active' : ''}">📝 Text</span>
-                        <a href="${c.image_url || '#'}" target="_blank" class="icon ${c.image_url ? 'active' : ''}" style="${!c.image_url ? 'pointer-events:none;' : ''}">📸 Image</a>
-                        <a href="${c.audio_url || '#'}" target="_blank" class="icon ${c.audio_url ? 'active' : ''}" style="${!c.audio_url ? 'pointer-events:none;' : ''}">🎤 Audio</a>
+                        <a href="${c.secureImageUrl}" target="_blank" class="icon ${c.image_url ? 'active' : ''}" style="${!c.image_url ? 'pointer-events:none;' : ''}">📸 Image</a>
+                        <a href="${c.secureAudioUrl}" target="_blank" class="icon ${c.audio_url ? 'active' : ''}" style="${!c.audio_url ? 'pointer-events:none;' : ''}">🎤 Audio</a>
                     </div>
                 </div>
             `).join('');
