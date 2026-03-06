@@ -39,10 +39,13 @@
     </div>
 
     <script>
-        const supabase = window.supabase.createClient('https://qprlfzxlwqcggnglbfdz.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcmxmenhsd3FjZ2duZ2xiZmR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTYxNjgsImV4cCI6MjA4ODM5MjE2OH0.MRzi6G7OGJeUwtef9X1GzDYbk8l0t-IzHh0vnsbuAPY');
+        // Updated to supabaseClient to prevent crashes
+        const supabaseUrl = 'https://qprlfzxlwqcggnglbfdz.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcmxmenhsd3FjZ2duZ2xiZmR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTYxNjgsImV4cCI6MjA4ODM5MjE2OH0.MRzi6G7OGJeUwtef9X1GzDYbk8l0t-IzHh0vnsbuAPY';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 document.getElementById('login-section').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
@@ -53,18 +56,18 @@
         async function login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) alert(error.message);
             else checkSession();
         }
 
         async function logout() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             location.reload();
         }
 
         async function fetchComplaints() {
-            const { data, error } = await supabase.from('complaints').select('*').order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('complaints').select('*').order('created_at', { ascending: false });
             if (error) { console.error(error); return; }
 
             const list = document.getElementById('complaints-list');
