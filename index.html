@@ -172,7 +172,9 @@
         // --- 1. Supabase Initialization ---
         const supabaseUrl = 'https://qprlfzxlwqcggnglbfdz.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcmxmenhsd3FjZ2duZ2xiZmR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTYxNjgsImV4cCI6MjA4ODM5MjE2OH0.MRzi6G7OGJeUwtef9X1GzDYbk8l0t-IzHh0vnsbuAPY';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // CHANGED 'supabase' to 'supabaseClient' to fix the naming collision!
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         // --- 2. UI & Splash Screen Logic ---
         window.addEventListener('load', () => {
@@ -300,24 +302,24 @@
                     }
                 }
 
-                // Upload Image
+                // Upload Image using renamed supabaseClient
                 let imageUrl = null;
                 if (compressedImageBlob) {
                     const fileName = `img_${Date.now()}.webp`;
-                    const { data, error } = await supabase.storage.from('complaint-images').upload(fileName, compressedImageBlob);
-                    if(!error) imageUrl = supabase.storage.from('complaint-images').getPublicUrl(fileName).data.publicUrl;
+                    const { data, error } = await supabaseClient.storage.from('complaint-images').upload(fileName, compressedImageBlob);
+                    if(!error) imageUrl = supabaseClient.storage.from('complaint-images').getPublicUrl(fileName).data.publicUrl;
                 }
 
-                // Upload Audio
+                // Upload Audio using renamed supabaseClient
                 let audioUrl = null;
                 if (finalAudioBlob) {
                     const fileName = `aud_${Date.now()}.webm`;
-                    const { data, error } = await supabase.storage.from('complaint-audio').upload(fileName, finalAudioBlob);
-                    if(!error) audioUrl = supabase.storage.from('complaint-audio').getPublicUrl(fileName).data.publicUrl;
+                    const { data, error } = await supabaseClient.storage.from('complaint-audio').upload(fileName, finalAudioBlob);
+                    if(!error) audioUrl = supabaseClient.storage.from('complaint-audio').getPublicUrl(fileName).data.publicUrl;
                 }
 
-                // Insert into Database
-                const { error: dbError } = await supabase.from('complaints').insert([{
+                // Insert into Database using renamed supabaseClient
+                const { error: dbError } = await supabaseClient.from('complaints').insert([{
                     complaint_text: text,
                     image_url: imageUrl,
                     audio_url: audioUrl,
