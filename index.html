@@ -302,20 +302,20 @@
                     }
                 }
 
-                // Upload Image using renamed supabaseClient
+                // Upload Image (Updated for Private Bucket)
                 let imageUrl = null;
                 if (compressedImageBlob) {
                     const fileName = `img_${Date.now()}.webp`;
                     const { data, error } = await supabaseClient.storage.from('complaint-images').upload(fileName, compressedImageBlob);
-                    if(!error) imageUrl = supabaseClient.storage.from('complaint-images').getPublicUrl(fileName).data.publicUrl;
+                    if(!error) imageUrl = data.path; // Storing the secure path instead of a public URL
                 }
 
-                // Upload Audio using renamed supabaseClient
+                // Upload Audio (Updated for Private Bucket)
                 let audioUrl = null;
                 if (finalAudioBlob) {
                     const fileName = `aud_${Date.now()}.webm`;
                     const { data, error } = await supabaseClient.storage.from('complaint-audio').upload(fileName, finalAudioBlob);
-                    if(!error) audioUrl = supabaseClient.storage.from('complaint-audio').getPublicUrl(fileName).data.publicUrl;
+                    if(!error) audioUrl = data.path; // Storing the secure path instead of a public URL
                 }
 
                 // Insert into Database using renamed supabaseClient
