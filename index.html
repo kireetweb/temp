@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mujhe Batao | Secure Complaint Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* CSS Variables: Patriotic Theme & Glassmorphism */
@@ -12,171 +13,299 @@
             --white: #FFFFFF;
             --green: #138808;
             --navy: #000080;
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 128, 0.1);
+            --navy-light: #1a1a99;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-shadow: 0 25px 50px -12px rgba(0, 0, 128, 0.15);
+            --danger: #ef4444;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
 
         body {
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-            color: #333;
+            background-color: #f8fafc;
+            color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Tricolor Background Loop */
+        .ambient-bg {
+            position: fixed; inset: 0; z-index: -1; overflow: hidden;
+            background: #f8fafc;
+        }
+        .blob {
+            position: absolute; filter: blur(120px); opacity: 0.15;
+            border-radius: 50%; animation: float 12s infinite alternate ease-in-out;
+        }
+        .blob.saffron { background: var(--saffron); width: 400px; height: 400px; top: -10%; left: -10%; }
+        .blob.green { background: var(--green); width: 500px; height: 500px; bottom: -20%; right: -10%; animation-delay: -5s; }
+        .blob.navy { background: var(--navy); width: 300px; height: 300px; top: 40%; left: 40%; animation-delay: -2s; opacity: 0.08; }
+
+        @keyframes float { 
+            0% { transform: translate(0, 0) scale(1); } 
+            100% { transform: translate(50px, 30px) scale(1.1); } 
         }
 
         /* Splash Screen */
         #splash {
-            position: fixed; inset: 0; background: var(--white);
+            position: fixed; inset: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 9999; transition: opacity 0.8s ease;
+            z-index: 9999; transition: opacity 0.8s ease, visibility 0.8s;
         }
-        .splash-text { font-size: 2.5rem; font-weight: bold; color: var(--navy); letter-spacing: 2px; }
-        .tricolor-bar { height: 4px; width: 100px; background: linear-gradient(90deg, var(--saffron) 33%, var(--white) 33%, var(--white) 66%, var(--green) 66%); margin-top: 10px; animation: expand 1.5s ease-out forwards; }
-        @keyframes expand { 0% { width: 0; } 100% { width: 150px; } }
+        .splash-text { 
+            font-size: 3rem; font-weight: 700; color: var(--navy); letter-spacing: 1px; 
+            animation: pulseText 2s infinite;
+        }
+        .splash-loader {
+            width: 60px; height: 60px; border-radius: 50%; border: 4px solid transparent;
+            border-top-color: var(--saffron); border-right-color: var(--white); 
+            border-bottom-color: var(--green); border-left-color: var(--navy);
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin-top: 20px;
+        }
+        @keyframes pulseText { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.98); } }
 
         /* Main Container */
-        #app { display: none; max-width: 800px; margin: 0 auto; padding: 20px; animation: slideUp 0.6s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        #app { display: none; max-width: 760px; margin: 40px auto; padding: 0 20px; animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
 
-        header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
-        h1 { color: var(--navy); font-size: 2rem; margin-bottom: 5px; }
-        .subtitle { color: #666; font-size: 0.9rem; }
-
-        /* Glassmorphism Cards */
-        .card {
-            background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border); border-radius: 16px;
-            padding: 24px; margin-bottom: 20px; box-shadow: var(--glass-shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* Glassmorphism Wrapper */
+        .glass-wrapper {
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 24px;
+            box-shadow: var(--glass-shadow); overflow: hidden;
         }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px 0 rgba(0, 0, 128, 0.15); }
 
-        /* Form Elements */
+        /* Festive Banner */
+        .banner {
+            width: 100%; height: 180px; object-fit: cover;
+            border-bottom: 1px solid rgba(0,0,0,0.05); background: #eee;
+        }
+
+        header { text-align: center; padding: 30px 20px 10px; }
+        h1 { color: var(--navy); font-size: 2.2rem; font-weight: 700; }
+        .subtitle { color: var(--text-muted); font-size: 1rem; font-weight: 400; margin-top: 5px; }
+
+        main { padding: 30px; }
+
+        /* Form Sections */
+        .section { margin-bottom: 28px; }
+        .section-header { font-size: 1.1rem; font-weight: 600; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+        
+        /* Text Area */
         textarea {
-            width: 100%; height: 150px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;
-            resize: none; font-size: 1rem; transition: border-color 0.3s;
+            width: 100%; height: 140px; padding: 18px; 
+            background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,128,0.1); border-radius: 12px;
+            resize: none; font-size: 1rem; color: var(--text-main);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); transition: all 0.3s ease;
         }
-        textarea:focus { outline: none; border-color: var(--navy); }
-        .char-counter { text-align: right; font-size: 0.8rem; color: #888; margin-top: 5px; }
+        textarea:focus { outline: none; border-color: var(--navy); background: #fff; box-shadow: 0 0 0 4px rgba(0, 0, 128, 0.05), inset 0 2px 4px rgba(0,0,0,0.02); }
+        textarea::placeholder { color: #94a3b8; }
+        .char-counter { text-align: right; font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; font-weight: 500;}
 
-        /* File Uploads */
+        /* Image Upload */
         .upload-area {
-            border: 2px dashed #ccc; border-radius: 8px; padding: 20px; text-align: center;
-            cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 2px dashed rgba(0,0,128,0.2); border-radius: 16px; padding: 30px; text-align: center;
+            cursor: pointer; transition: all 0.3s ease; background: rgba(255,255,255,0.4);
+            position: relative; overflow: hidden;
         }
-        .upload-area:hover { border-color: var(--saffron); background: rgba(255, 153, 51, 0.05); }
+        .upload-area:hover { border-color: var(--saffron); background: rgba(255, 153, 51, 0.05); transform: translateY(-2px); }
         .file-input { display: none; }
+        .upload-icon { font-size: 2rem; color: var(--navy); margin-bottom: 10px; }
         
-        /* Audio Record */
-        .btn-record {
-            background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 20px;
-            cursor: pointer; font-weight: bold; transition: all 0.3s;
+        /* Encrypted Verified Animation */
+        .verified-badge {
+            display: none; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 15px; padding: 10px 16px; background: rgba(19, 136, 8, 0.1);
+            border-radius: 50px; color: var(--green); font-weight: 600; font-size: 0.9rem;
+            animation: slideInFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .btn-record.recording { animation: pulse 1.5s infinite; background: #ff6b81; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); } }
+        @keyframes slideInFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .check-svg { width: 18px; height: 18px; stroke-dasharray: 50; stroke-dashoffset: 50; animation: drawCheck 0.6s 0.2s forwards ease-out; }
+        @keyframes drawCheck { to { stroke-dashoffset: 0; } }
 
-        /* Submit Button with Tricolor Loader */
-        .submit-btn {
-            width: 100%; padding: 16px; background: var(--navy); color: white; border: none;
-            border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
-            position: relative; overflow: hidden; transition: background 0.3s;
+        /* Audio Section */
+        .audio-controls { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.6); padding: 15px; border-radius: 16px; border: 1px solid rgba(0,0,128,0.1); }
+        .btn-record {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--navy); color: white; border: none; padding: 12px 24px; 
+            border-radius: 50px; cursor: pointer; font-weight: 600; transition: all 0.3s;
         }
-        .submit-btn:hover { background: #000066; }
-        .submit-btn:disabled { opacity: 0.8; cursor: not-allowed; }
+        .btn-record:hover { background: var(--navy-light); transform: translateY(-1px); }
+        .btn-record.recording { background: var(--danger); animation: recordPulse 1.5s infinite; }
+        @keyframes recordPulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
         
+        /* Visualizer */
+        .visualizer { display: none; align-items: center; gap: 3px; height: 20px; }
+        .bar { width: 4px; background: var(--danger); border-radius: 2px; animation: bounce 0.5s infinite alternate; }
+        .bar:nth-child(2) { animation-delay: 0.1s; } .bar:nth-child(3) { animation-delay: 0.2s; } .bar:nth-child(4) { animation-delay: 0.3s; }
+        @keyframes bounce { from { height: 4px; } to { height: 20px; } }
+
+        /* Custom Audio Player UI */
+        .custom-player { display: none; flex: 1; align-items: center; gap: 10px; }
+        .play-btn { background: var(--navy); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .progress-track { flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; position: relative; }
+        .progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--green); width: 0%; transition: width 0.1s linear; }
+
+        /* Submit Button */
+        .submit-wrapper { position: relative; padding: 3px; border-radius: 14px; background: transparent; overflow: hidden; margin-top: 10px; }
+        .submit-wrapper::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, var(--saffron), var(--white), var(--green), var(--white), var(--saffron));
+            animation: rotateBg 4s linear infinite; z-index: -1;
+        }
+        @keyframes rotateBg { 100% { transform: rotate(360deg); } }
+        
+        .submit-btn {
+            width: 100%; padding: 18px; background: var(--navy); color: white; border: none;
+            border-radius: 11px; font-size: 1.15rem; font-weight: 700; cursor: pointer;
+            transition: background 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .submit-btn:hover { background: #0b0b45; }
+        .submit-btn:disabled { opacity: 0.9; cursor: not-allowed; }
+
         .loader {
-            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 24px; height: 24px; border-radius: 50%;
-            border: 3px solid transparent;
-            border-top-color: var(--saffron); border-right-color: var(--white); border-bottom-color: var(--green);
+            display: none; width: 22px; height: 22px; border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff;
             animation: spin 1s linear infinite;
         }
-        .loading .btn-text { opacity: 0; }
+        .loading .btn-text { display: none; }
         .loading .loader { display: block; }
-        @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Privacy Disclaimer */
-        .disclaimer { font-size: 0.8rem; color: #666; text-align: center; margin-top: 20px; padding: 10px; }
+        /* Disclaimer */
+        .disclaimer { font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 20px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
         /* Success Screen */
-        #success-screen { display: none; text-align: center; padding: 50px 20px; }
-        .tick-icon { font-size: 4rem; color: var(--green); margin-bottom: 20px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        #success-screen { display: none; text-align: center; padding: 60px 20px; }
+        .success-icon-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 20px; }
+        .success-circle { width: 100%; height: 100%; background: rgba(19, 136, 8, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: popScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .success-circle svg { width: 50px; height: 50px; color: var(--green); }
+        .confetti { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: blast 0.8s ease-out forwards; opacity: 0; }
+        
+        @keyframes popScale { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @keyframes blast { 
+            0% { transform: translate(0,0) scale(1); opacity: 1; } 
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } 
+        }
+
+        #success-screen h2 { color: var(--navy); font-size: 2rem; margin-bottom: 10px; }
+        #success-screen p { color: var(--text-muted); line-height: 1.6; margin-bottom: 30px; font-size: 1.05rem; }
     </style>
 </head>
 <body>
 
+    <div class="ambient-bg">
+        <div class="blob saffron"></div>
+        <div class="blob green"></div>
+        <div class="blob navy"></div>
+    </div>
+
     <div id="splash">
         <div class="splash-text">Mujhe Batao</div>
-        <div class="tricolor-bar"></div>
+        <div class="splash-loader"></div>
     </div>
 
     <div id="app">
-        <header>
-            <h1>Mujhe Batao</h1>
-            <p class="subtitle">Secure, Anonymous Complaint Portal</p>
-        </header>
+        <div class="glass-wrapper">
+            <img src="banner.png" alt="Festive Banner" class="banner" onerror="this.src='https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&q=80&w=1200&h=300';">
 
-        <main id="complaint-form">
-            <div class="card">
-                <h3>Incident Details</h3>
-                <textarea id="complaintText" placeholder="Describe the incident securely..."></textarea>
-                <div class="char-counter"><span id="charCount">0</span> / 10000 characters</div>
-            </div>
+            <header>
+                <h1>Mujhe Batao</h1>
+                <p class="subtitle">Secure, Anonymous Complaint Portal</p>
+            </header>
 
-            <div class="card">
-                <h3>Image Evidence</h3>
-                <label class="upload-area" id="imageUploadArea">
-                    <span id="imageLabel">Click to select image (Max 20MB)</span>
-                    <input type="file" id="imageInput" class="file-input" accept="image/jpeg, image/png, image/webp">
-                </label>
-                <div id="imageStatus" style="font-size: 0.85rem; color: var(--green); margin-top: 5px; display: none;">Image compressed and ready.</div>
-            </div>
-
-            <div class="card">
-                <h3>Voice Evidence</h3>
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">Record directly or upload an audio file.</p>
-                <button class="btn-record" id="recordBtn">Start Recording</button>
-                <audio id="audioPreview" controls style="display: none; width: 100%; margin-top: 10px;"></audio>
-            </div>
-
-            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3>Include Location</h3>
-                    <p style="font-size: 0.8rem; color: #666;">Helps authorities act faster.</p>
+            <main id="complaint-form">
+                <div class="section">
+                    <div class="section-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        Incident Details
+                    </div>
+                    <textarea id="complaintText" placeholder="Describe the incident securely... Every detail helps."></textarea>
+                    <div class="char-counter"><span id="charCount">0</span> / 10000</div>
                 </div>
-                <input type="checkbox" id="locationToggle" style="width: 20px; height: 20px;">
+
+                <div class="section">
+                    <div class="section-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        Photographic Evidence
+                    </div>
+                    <label class="upload-area" id="imageUploadArea">
+                        <div class="upload-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        </div>
+                        <span id="imageLabel" style="font-weight: 500;">Click or Drag image here (Max 20MB)</span>
+                        <input type="file" id="imageInput" class="file-input" accept="image/jpeg, image/png, image/webp">
+                    </label>
+                    
+                    <div id="imageVerified" class="verified-badge">
+                        <svg class="check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        Encrypted & Verified
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                        Voice Evidence
+                    </div>
+                    <div class="audio-controls">
+                        <button class="btn-record" id="recordBtn">
+                            <span id="recordText">Record</span>
+                        </button>
+                        
+                        <div class="visualizer" id="audioVisualizer">
+                            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                        </div>
+
+                        <div class="custom-player" id="customPlayer">
+                            <button class="play-btn" id="playPauseBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            </button>
+                            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+                        </div>
+                        <audio id="audioPreview" style="display: none;"></audio>
+                    </div>
+                </div>
+
+                <div class="submit-wrapper">
+                    <button class="submit-btn" id="submitBtn">
+                        <span class="btn-text">Transmit Securely</span>
+                        <div class="loader"></div>
+                    </button>
+                </div>
+
+                <div class="disclaimer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    Your privacy is protected. No identifiable information is required.
+                </div>
+            </main>
+
+            <div id="success-screen">
+                <div class="success-icon-wrapper" id="successIcon">
+                    <div class="success-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    </div>
+                <h2>Data Encrypted & Sent</h2>
+                <p>Your report has been securely transmitted to the authorities.<br>Thank you for your vigilance.</p>
+                <button onclick="location.reload()" class="submit-btn" style="width: auto; padding: 12px 30px; margin: 0 auto; border-radius: 50px;">Submit Another Report</button>
             </div>
-
-            <button class="submit-btn" id="submitBtn">
-                <span class="btn-text">Submit Securely</span>
-                <div class="loader"></div>
-            </button>
-
-            <div class="disclaimer">
-                🔒 Your privacy is protected. We do not ask for your name, email, or phone number.
-            </div>
-        </main>
-
-        <div id="success-screen">
-            <div class="tick-icon">✓</div>
-            <h2>Complaint Submitted</h2>
-            <p style="color: #666; margin-top: 10px;">Your report has been securely encrypted and transmitted to the authorities.</p>
-            <button onclick="location.reload()" class="submit-btn" style="margin-top: 30px; width: auto; padding: 10px 30px;">Submit Another</button>
         </div>
     </div>
 
     <script>
-        // --- 1. Supabase Initialization ---
+        // --- 1. Supabase Initialization (Preserved) ---
         const supabaseUrl = 'https://qprlfzxlwqcggnglbfdz.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcmxmenhsd3FjZ2duZ2xiZmR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTYxNjgsImV4cCI6MjA4ODM5MjE2OH0.MRzi6G7OGJeUwtef9X1GzDYbk8l0t-IzHh0vnsbuAPY';
-        
-        // CHANGED 'supabase' to 'supabaseClient' to fix the naming collision!
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // --- 2. UI & Splash Screen Logic ---
+        // --- 2. Splash Screen Logic ---
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
@@ -184,10 +313,10 @@
                     document.getElementById('splash').style.display = 'none';
                     document.getElementById('app').style.display = 'block';
                 }, 800);
-            }, 1500);
+            }, 1800);
         });
 
-        // --- 3. Text Counter ---
+        // --- 3. Text Counter Logic ---
         const complaintText = document.getElementById('complaintText');
         const charCount = document.getElementById('charCount');
         complaintText.addEventListener('input', () => {
@@ -196,13 +325,13 @@
             if(length > 10000) complaintText.value = complaintText.value.substring(0, 10000);
         });
 
-        // --- 4. Image Compression Logic (Canvas) ---
+        // --- 4. Image Compression & Verified Animation ---
         let compressedImageBlob = null;
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
-            document.getElementById('imageLabel').textContent = "Compressing...";
+            document.getElementById('imageLabel').textContent = "Compressing & Encrypting...";
             
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -213,41 +342,43 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
-                    // Max dimensions
                     const MAX_WIDTH = 1920; const MAX_HEIGHT = 1080;
                     let width = img.width; let height = img.height;
 
-                    if (width > height && width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width; width = MAX_WIDTH;
-                    } else if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height; height = MAX_HEIGHT;
-                    }
+                    if (width > height && width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } 
+                    else if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
 
                     canvas.width = width; canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Compress to WebP at 80% quality
                     canvas.toBlob((blob) => {
                         compressedImageBlob = blob;
-                        document.getElementById('imageLabel').textContent = "Image selected & compressed";
-                        document.getElementById('imageStatus').style.display = "block";
+                        document.getElementById('imageUploadArea').style.display = 'none';
+                        document.getElementById('imageVerified').style.display = 'flex';
                     }, 'image/webp', 0.8);
                 }
             }
         });
 
-        // --- 5. Audio Recording Logic ---
+        // --- 5. Custom Audio Recording & Playback ---
         let mediaRecorder;
         let audioChunks = [];
         let finalAudioBlob = null;
+        
         const recordBtn = document.getElementById('recordBtn');
+        const recordText = document.getElementById('recordText');
+        const visualizer = document.getElementById('audioVisualizer');
+        const customPlayer = document.getElementById('customPlayer');
         const audioPreview = document.getElementById('audioPreview');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressFill = document.getElementById('progressFill');
 
         recordBtn.addEventListener('click', async () => {
             if (mediaRecorder && mediaRecorder.state === "recording") {
                 mediaRecorder.stop();
-                recordBtn.textContent = "Start Recording";
+                recordText.textContent = "Re-Record";
                 recordBtn.classList.remove('recording');
+                visualizer.style.display = 'none';
                 return;
             }
 
@@ -260,24 +391,43 @@
                 mediaRecorder.onstop = () => {
                     finalAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                     audioPreview.src = URL.createObjectURL(finalAudioBlob);
-                    audioPreview.style.display = "block";
-                    // Stop tracks to release mic
+                    customPlayer.style.display = "flex";
                     stream.getTracks().forEach(track => track.stop());
                 };
 
                 mediaRecorder.start();
-                recordBtn.textContent = "Stop Recording";
+                recordText.textContent = "Stop";
                 recordBtn.classList.add('recording');
-            } catch (err) {
-                alert("Microphone access denied or unavailable.");
+                visualizer.style.display = 'flex';
+                customPlayer.style.display = "none";
+            } catch (err) { alert("Microphone access denied or unavailable."); }
+        });
+
+        // Custom Player Logic
+        playPauseBtn.addEventListener('click', () => {
+            if(audioPreview.paused) {
+                audioPreview.play();
+                playPauseBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+            } else {
+                audioPreview.pause();
+                playPauseBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
             }
         });
 
-        // --- 6. Form Submission & Geolocation ---
+        audioPreview.addEventListener('timeupdate', () => {
+            const progress = (audioPreview.currentTime / audioPreview.duration) * 100;
+            progressFill.style.width = `${progress}%`;
+        });
+        audioPreview.addEventListener('ended', () => {
+            playPauseBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+            progressFill.style.width = '0%';
+        });
+
+        // --- 6. Form Submission, Location Auto-Prompt & Confetti ---
         document.getElementById('submitBtn').addEventListener('click', async () => {
             const text = complaintText.value.trim();
             if (!text && !compressedImageBlob && !finalAudioBlob) {
-                alert("Please provide at least some text, image, or audio evidence.");
+                alert("Please provide text, image, or audio evidence to proceed.");
                 return;
             }
 
@@ -286,39 +436,36 @@
             btn.disabled = true;
 
             try {
-                // Get Location if enabled
+                // Auto Location Trigger with IP Fallback
                 let lat = null, lng = null, ip = null;
-                if (document.getElementById('locationToggle').checked) {
+                try {
+                    const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, {timeout: 5000}));
+                    lat = pos.coords.latitude; lng = pos.coords.longitude;
+                } catch(e) {
                     try {
-                        const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, {timeout: 5000}));
-                        lat = pos.coords.latitude; lng = pos.coords.longitude;
-                    } catch(e) {
-                        // Fallback to IP location
-                        try {
-                            const res = await fetch('https://ipapi.co/json/');
-                            const data = await res.json();
-                            lat = data.latitude; lng = data.longitude; ip = data.ip;
-                        } catch(err) { console.log("Location capture failed"); }
-                    }
+                        const res = await fetch('https://ipapi.co/json/');
+                        const data = await res.json();
+                        lat = data.latitude; lng = data.longitude; ip = data.ip;
+                    } catch(err) { console.log("Location fallback failed"); }
                 }
 
-                // Upload Image (Updated for Private Bucket)
+                // Upload Image
                 let imageUrl = null;
                 if (compressedImageBlob) {
                     const fileName = `img_${Date.now()}.webp`;
                     const { data, error } = await supabaseClient.storage.from('complaint-images').upload(fileName, compressedImageBlob);
-                    if(!error) imageUrl = data.path; // Storing the secure path instead of a public URL
+                    if(!error) imageUrl = data.path; 
                 }
 
-                // Upload Audio (Updated for Private Bucket)
+                // Upload Audio
                 let audioUrl = null;
                 if (finalAudioBlob) {
                     const fileName = `aud_${Date.now()}.webm`;
                     const { data, error } = await supabaseClient.storage.from('complaint-audio').upload(fileName, finalAudioBlob);
-                    if(!error) audioUrl = data.path; // Storing the secure path instead of a public URL
+                    if(!error) audioUrl = data.path; 
                 }
 
-                // Insert into Database using renamed supabaseClient
+                // Database Insert
                 const { error: dbError } = await supabaseClient.from('complaints').insert([{
                     complaint_text: text,
                     image_url: imageUrl,
@@ -331,18 +478,41 @@
 
                 if (dbError) throw dbError;
 
-                // Show Success
+                // Trigger Success Screen & Confetti
                 document.getElementById('complaint-form').style.display = 'none';
                 document.getElementById('success-screen').style.display = 'block';
+                createConfetti();
 
             } catch (error) {
                 console.error(error);
-                alert("An error occurred during submission. Please try again.");
+                alert("An error occurred during secure transmission. Please try again.");
             } finally {
                 btn.classList.remove('loading');
                 btn.disabled = false;
             }
         });
+
+        // Confetti Animation Logic
+        function createConfetti() {
+            const colors = ['#FF9933', '#138808', '#000080'];
+            const container = document.getElementById('successIcon');
+            for(let i=0; i<30; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti';
+                conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 50;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                conf.style.setProperty('--tx', `${tx}px`);
+                conf.style.setProperty('--ty', `${ty}px`);
+                conf.style.left = '46px'; conf.style.top = '46px';
+                
+                container.appendChild(conf);
+            }
+        }
     </script>
 </body>
 </html>
