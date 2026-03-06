@@ -1,640 +1,531 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mujhe Batao | Secure Complaint Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        /* CSS Variables: Deep Patriotic Theme & Glassmorphism */
-        :root {
-            --saffron: #FF9933;
-            --white: #FFFFFF;
-            --green: #138808;
-            --navy: #000080;
-            --navy-light: #1a1a99;
-            --text-main: #0f172a;
-            --text-muted: #475569;
-            --glass-bg: rgba(255, 255, 255, 0.90);
-            --glass-border: rgba(255, 255, 255, 0.7);
-            --glass-shadow: 0 40px 80px -20px rgba(0, 0, 128, 0.2);
-            --danger: #ef4444;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mujhe Batao | Secure Complaint Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* CSS Variables: Enhanced Patriotic Theme & Professional Glassmorphism */
+:root {
+--saffron: #FF9933;
+--white: #FFFFFF;
+--green: #138808;
+--navy: #000080;
+--navy-light: #1a1a99;
+--text-main: #0f172a;
+--text-muted: #475569;
+--glass-bg: rgba(255, 255, 255, 0.90);
+--glass-border: rgba(255, 255, 255, 0.7);
+--glass-shadow: 0 40px 80px -20px rgba(0, 0, 128, 0.2);
+--danger: #ef4444;
+}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
 
-        body {
-            background-color: #f1f5f9;
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+    body {
+        background-color: #f1f5f9;
+        color: var(--text-main);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
 
-        /* Vibrant Ambient Tricolor Background */
-        .ambient-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: #fdfbfb; }
-        .blob {
-            position: absolute; filter: blur(100px); opacity: 0.5; 
-            border-radius: 50%; animation: float 14s infinite alternate ease-in-out;
-        }
-        .blob.saffron { background: var(--saffron); width: 60vw; height: 60vw; top: -20%; left: -10%; }
-        .blob.green { background: var(--green); width: 60vw; height: 60vw; bottom: -20%; right: -10%; animation-delay: -5s; }
-        .blob.navy { background: var(--navy); width: 40vw; height: 40vw; top: 30%; left: 30%; animation-delay: -2s; opacity: 0.25; filter: blur(140px); }
+    /* Vibrant Ambient Tricolor Background (Increased Opacity) */
+    .ambient-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: #fdfbfb; }
+    .blob {
+        position: absolute; filter: blur(100px); opacity: 0.5; /* Increased Opacity */
+        border-radius: 50%; animation: float 14s infinite alternate ease-in-out;
+    }
+    .blob.saffron { background: var(--saffron); width: 60vw; height: 60vw; top: -20%; left: -10%; }
+    .blob.green { background: var(--green); width: 60vw; height: 60vw; bottom: -20%; right: -10%; animation-delay: -5s; }
+    .blob.navy { background: var(--navy); width: 40vw; height: 40vw; top: 30%; left: 30%; animation-delay: -2s; opacity: 0.25; filter: blur(140px); }
 
-        @keyframes float { 
-            0% { transform: translate(0, 0) scale(1); } 
-            100% { transform: translate(50px, 30px) scale(1.08); } 
-        }
+    @keyframes float { 
+        0% { transform: translate(0, 0) scale(1); } 
+        100% { transform: translate(50px, 30px) scale(1.08); } 
+    }
 
-        /* Splash Screen */
-        #splash {
-            position: fixed; inset: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 9999; transition: opacity 0.8s ease, visibility 0.8s;
-        }
-        .splash-text { font-size: 3.5rem; font-weight: 800; color: var(--navy); letter-spacing: 1px; animation: pulseText 2s infinite; }
-        .splash-loader {
-            width: 70px; height: 70px; border-radius: 50%; border: 5px solid transparent;
-            border-top-color: var(--saffron); border-right-color: var(--navy); 
-            border-bottom-color: var(--green); border-left-color: var(--navy);
-            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin-top: 20px;
-        }
-        @keyframes pulseText { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.96); } }
+    /* Splash Screen */
+    #splash {
+        position: fixed; inset: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        z-index: 9999; transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    .splash-text { font-size: 3.5rem; font-weight: 800; color: var(--navy); letter-spacing: 1px; animation: pulseText 2s infinite; }
+    .splash-loader {
+        width: 70px; height: 70px; border-radius: 50%; border: 5px solid transparent;
+        border-top-color: var(--saffron); border-right-color: var(--navy); 
+        border-bottom-color: var(--green); border-left-color: var(--navy);
+        animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin-top: 20px;
+    }
+    @keyframes pulseText { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.96); } }
 
-        /* Main Container - Desktop Split Layout */
-        #app { 
-            display: none; width: 100%; max-width: 1150px; 
-            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
-        }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    /* Main Container - Desktop Split Layout */
+    #app { 
+        display: none; width: 100%; max-width: 1150px; 
+        animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
 
-        .glass-wrapper {
-            background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-            border: 1px solid var(--glass-border); border-radius: 30px;
-            box-shadow: var(--glass-shadow); overflow: hidden;
-            display: flex; flex-direction: row; position: relative;
-        }
+    .glass-wrapper {
+        background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+        border: 1px solid var(--glass-border); border-radius: 30px;
+        box-shadow: var(--glass-shadow); overflow: hidden;
+        display: flex; flex-direction: row; position: relative;
+    }
 
-        /* Professional Ashoka Chakra Watermark */
-        .chakra-watermark {
-            position: absolute; right: -80px; bottom: -80px; width: 500px; height: 500px;
-            opacity: 0.05; pointer-events: none; z-index: 0;
-            animation: spin 90s linear infinite;
-        }
+    /* Professional Ashoka Chakra Watermark - FIXED placement */
+    .chakra-watermark {
+        position: absolute; right: -80px; bottom: -80px; width: 500px; height: 500px;
+        opacity: 0.05; pointer-events: none; z-index: -1; /* Confined below other elements */
+        animation: spin 90s linear infinite;
+    }
 
-        /* Banner Container */
-        .banner-container {
-            width: 42%; position: relative; background: #eee;
-            border-right: 1px solid rgba(0,0,128,0.08); flex-shrink: 0;
-        }
-        .banner { width: 100%; height: 100%; object-fit: cover; object-position: center; }
-        .banner-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to right, rgba(0,0,128,0.05), rgba(255,255,255,0.9));
-        }
+    /* Banner Container (Responsive and Polish) */
+    .banner-container {
+        width: 42%; position: relative; background: #eee;
+        border-right: 1px solid rgba(0,0,128,0.08); flex-shrink: 0;
+    }
+    .banner { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+    /* Gradient overlay to blend the banner beautifully */
+    .banner-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(to right, rgba(0,0,128,0.05), rgba(255,255,255,0.95));
+    }
 
-        /* Form Container */
-        .form-container { width: 58%; padding: 45px; position: relative; z-index: 1; }
+    /* Form Container */
+    .form-container { width: 58%; padding: 45px; position: relative; z-index: 1; }
 
-        header { margin-bottom: 35px; }
-        h1 { color: var(--navy); font-size: 2.8rem; font-weight: 800; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
-        .tricolor-line { height: 5px; width: 70px; background: linear-gradient(90deg, var(--saffron) 33%, var(--white) 33%, var(--white) 66%, var(--green) 66%); border-radius: 3px; margin-top: 10px; }
-        .subtitle { color: var(--text-muted); font-size: 1.1rem; font-weight: 500; margin-top: 10px; }
+    header { margin-bottom: 35px; }
+    h1 { color: var(--navy); font-size: 2.8rem; font-weight: 800; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
+    .tricolor-line { height: 5px; width: 70px; background: linear-gradient(90deg, var(--saffron) 33%, var(--white) 33%, var(--white) 66%, var(--green) 66%); border-radius: 3px; margin-top: 10px; }
+    .subtitle { color: var(--text-muted); font-size: 1.1rem; font-weight: 500; margin-top: 10px; }
 
-        /* Form Sections */
-        .section { margin-bottom: 30px; background: rgba(255,255,255,0.7); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 4px 20px rgba(0,0,0,0.02); transition: transform 0.3s ease;}
-        .section:hover { transform: translateY(-2px); }
-        .section-header { font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;}
-        
-        /* Text Area */
-        textarea {
-            width: 100%; height: 130px; padding: 20px; 
-            background: rgba(255,255,255,0.9); border: 2px solid rgba(0,0,128,0.08); border-radius: 14px;
-            resize: none; font-size: 1.05rem; color: var(--text-main); font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        textarea:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 5px rgba(255, 153, 51, 0.1); background: #fff;}
-        textarea::placeholder { color: #94a3b8; font-weight: 400; }
-        .char-counter { text-align: right; font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; font-weight: 600;}
+    /* Form Sections */
+    .section { margin-bottom: 30px; background: rgba(255,255,255,0.7); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 4px 20px rgba(0,0,0,0.02); transition: transform 0.3s ease;}
+    .section:hover { transform: translateY(-2px); }
+    .section-header { font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;}
+    
+    /* Text Area */
+    textarea {
+        width: 100%; height: 130px; padding: 20px; 
+        background: rgba(255,255,255,0.9); border: 2px solid rgba(0,0,128,0.08); border-radius: 14px;
+        resize: none; font-size: 1.05rem; color: var(--text-main); font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    textarea:focus { outline: none; border-color: var(--saffron); box-shadow: 0 0 0 5px rgba(255, 153, 51, 0.1); background: #fff;}
+    textarea::placeholder { color: #94a3b8; font-weight: 400; }
+    .char-counter { text-align: right; font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; font-weight: 600;}
 
-        /* Image Upload */
-        .upload-area {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border: 2px dashed rgba(0,0,128,0.2); border-radius: 16px; padding: 35px; text-align: center;
-            cursor: pointer; transition: all 0.3s ease; background: rgba(255,255,255,0.6);
-            position: relative; overflow: hidden;
-        }
-        .upload-area:hover { border-color: var(--green); background: rgba(19, 136, 8, 0.04); box-shadow: inset 0 0 20px rgba(19,136,8,0.05); }
-        .file-input { display: none; }
-        .upload-icon { font-size: 2.5rem; color: var(--saffron); margin-bottom: 12px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .upload-area:hover .upload-icon { transform: scale(1.15); color: var(--green); }
-        
-        /* Encrypted Verified Animation */
-        .verified-badge {
-            display: none; align-items: center; justify-content: center; gap: 10px;
-            margin-top: 15px; padding: 16px 20px; background: linear-gradient(90deg, rgba(19,136,8,0.1), rgba(19,136,8,0.02));
-            border-radius: 14px; color: var(--green); font-weight: 700; font-size: 1.05rem;
-            border: 1px solid rgba(19,136,8,0.2);
-            animation: slideInFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes slideInFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .check-svg { width: 24px; height: 24px; stroke-dasharray: 50; stroke-dashoffset: 50; animation: drawCheck 0.6s 0.2s forwards ease-out; }
-        @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+    /* Image Upload Area (Restricted to photo files only) */
+    .upload-area {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        border: 2px dashed rgba(0,0,128,0.2); border-radius: 16px; padding: 35px; text-align: center;
+        cursor: pointer; transition: all 0.3s ease; background: rgba(255,255,255,0.6);
+        position: relative; overflow: hidden;
+    }
+    .upload-area:hover { border-color: var(--green); background: rgba(19, 136, 8, 0.04); box-shadow: inset 0 0 20px rgba(19,136,8,0.05); }
+    .file-input { display: none; }
+    .upload-icon { font-size: 2.5rem; color: var(--saffron); margin-bottom: 12px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .upload-area:hover .upload-icon { transform: scale(1.15); color: var(--green); }
+    
+    /* Encrypted Verified Animation */
+    .verified-badge {
+        display: none; align-items: center; justify-content: center; gap: 10px;
+        margin-top: 15px; padding: 16px 20px; background: linear-gradient(90deg, rgba(19,136,8,0.1), rgba(19,136,8,0.02));
+        border-radius: 14px; color: var(--green); font-weight: 700; font-size: 1.05rem;
+        border: 1px solid rgba(19,136,8,0.2);
+        animation: slideInFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideInFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .check-svg { width: 24px; height: 24px; stroke-dasharray: 50; stroke-dashoffset: 50; animation: drawCheck 0.6s 0.2s forwards ease-out; }
+    @keyframes drawCheck { to { stroke-dashoffset: 0; } }
 
-        /* Audio Section */
-        .audio-controls { display: flex; align-items: center; gap: 15px; }
-        .btn-record {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            background: var(--navy); color: white; border: 2px solid transparent; padding: 14px 28px; 
-            border-radius: 50px; cursor: pointer; font-weight: 700; font-size: 1.05rem; transition: all 0.3s;
-        }
-        .btn-record:hover { background: var(--navy-light); box-shadow: 0 8px 20px rgba(0,0,128,0.2); transform: translateY(-1px); }
-        .btn-record.recording { 
-            background: white; color: var(--green); border-color: var(--green);
-            animation: recordPulse 1.5s infinite; 
-        }
-        @keyframes recordPulse { 0% { box-shadow: 0 0 0 0 rgba(19, 136, 8, 0.3); } 70% { box-shadow: 0 0 0 15px rgba(19, 136, 8, 0); } 100% { box-shadow: 0 0 0 0 rgba(19, 136, 8, 0); } }
-        
-        /* Patriotic Visualizer */
-        .visualizer { display: none; align-items: center; gap: 5px; height: 26px; }
-        .bar { width: 6px; border-radius: 3px; animation: bounce 0.5s infinite alternate cubic-bezier(0.5, 0, 0.5, 1); }
-        .bar:nth-child(1) { background: var(--saffron); animation-delay: 0.0s; } 
-        .bar:nth-child(2) { background: var(--navy); animation-delay: 0.15s; } 
-        .bar:nth-child(3) { background: var(--green); animation-delay: 0.3s; }
-        .bar:nth-child(4) { background: var(--saffron); animation-delay: 0.45s; }
-        @keyframes bounce { from { height: 6px; } to { height: 26px; } }
+    /* Audio Section removed - NO OTHER FILES ALLOWED */
 
-        /* Custom Audio Player UI (Tricolor Progress) */
-        .custom-player { display: none; flex: 1; align-items: center; gap: 15px; }
-        .play-btn { background: var(--saffron); color: white; border: none; width: 46px; height: 46px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .play-btn:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(255, 153, 51, 0.3); }
-        .progress-track { flex: 1; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-        .progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, var(--saffron), var(--green)); width: 0%; transition: width 0.1s linear; }
+    /* Patriotic Submit Button */
+    .submit-wrapper { position: relative; padding: 4px; border-radius: 16px; background: transparent; overflow: hidden; margin-top: 25px; }
+    .submit-wrapper::before {
+        content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        background: conic-gradient(from 0deg, var(--saffron), var(--white), var(--green), var(--white), var(--saffron));
+        animation: rotateBg 3s linear infinite; z-index: -1;
+    }
+    @keyframes rotateBg { 100% { transform: rotate(360deg); } }
+    
+    .submit-btn {
+        width: 100%; padding: 22px; background: var(--navy); color: white; border: none;
+        border-radius: 12px; font-size: 1.3rem; font-weight: 800; cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; gap: 12px;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+    /* FIXED HOVER STATE: Solid White, Navy Text, Elevates seamlessly - no gradient revealed under button */
+    .submit-btn:hover { 
+        background: var(--white); 
+        color: var(--navy); 
+        box-shadow: 0 10px 25px rgba(0,0,128,0.2);
+        transform: translateY(-2px);
+    }
+    .submit-btn:disabled { opacity: 0.9; cursor: not-allowed; }
 
-        /* Patriotic Submit Button */
-        .submit-wrapper { position: relative; padding: 4px; border-radius: 16px; background: transparent; overflow: hidden; margin-top: 25px; }
-        .submit-wrapper::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(from 0deg, var(--saffron), var(--white), var(--green), var(--white), var(--saffron));
-            animation: rotateBg 3s linear infinite; z-index: -1;
-        }
-        @keyframes rotateBg { 100% { transform: rotate(360deg); } }
-        
-        .submit-btn {
-            width: 100%; padding: 22px; background: var(--navy); color: white; border: none;
-            border-radius: 12px; font-size: 1.3rem; font-weight: 800; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; gap: 12px;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        /* FIXED HOVER STATE: Solid White, Navy Text, Elevates seamlessly */
-        .submit-btn:hover { 
-            background: var(--white); 
-            color: var(--navy); 
-            box-shadow: 0 10px 25px rgba(0,0,128,0.2);
-            transform: translateY(-2px);
-        }
-        .submit-btn:disabled { opacity: 0.9; cursor: not-allowed; }
+    .loader {
+        display: none; width: 28px; height: 28px; border-radius: 50%;
+        border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--saffron); border-right-color: var(--green);
+        animation: spin 1s linear infinite;
+    }
+    .submit-btn:hover .loader { border-color: rgba(0,0,128,0.2); border-top-color: var(--saffron); border-right-color: var(--green); }
+    .loading .btn-text { display: none; }
+    .loading .loader { display: block; }
+    @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 
-        .loader {
-            display: none; width: 28px; height: 28px; border-radius: 50%;
-            border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--saffron); border-right-color: var(--green);
-            animation: spin 1s linear infinite;
-        }
-        .submit-btn:hover .loader { border-color: rgba(0,0,128,0.2); border-top-color: var(--saffron); border-right-color: var(--green); }
-        .loading .btn-text { display: none; }
-        .loading .loader { display: block; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+    /* Disclaimer */
+    .disclaimer { font-size: 0.95rem; color: var(--text-muted); text-align: center; margin-top: 25px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        /* Disclaimer */
-        .disclaimer { font-size: 0.95rem; color: var(--text-muted); text-align: center; margin-top: 25px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    /* Joyful Success Screen */
+    #success-screen { display: none; text-align: center; padding: 100px 40px; position: relative; z-index: 2; }
+    .success-icon-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 30px; }
+    .success-circle { 
+        width: 100%; height: 100%; background: linear-gradient(135deg, var(--green), #0f6608); 
+        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+        animation: popScale 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, happyPulse 2s infinite 1s; 
+        box-shadow: 0 15px 35px rgba(19,136,8,0.4); 
+    }
+    .success-circle svg { width: 70px; height: 70px; color: white; stroke-dasharray: 100; stroke-dashoffset: 100; animation: drawCheck 0.8s 0.3s forwards ease-out; }
+    
+    @keyframes popScale { 0% { transform: scale(0); opacity: 0;} 100% { transform: scale(1); opacity: 1;} }
+    @keyframes happyPulse { 
+        0% { box-shadow: 0 0 0 0 rgba(19, 136, 8, 0.5); } 
+        70% { box-shadow: 0 0 0 25px rgba(19, 136, 8, 0); } 
+        100% { box-shadow: 0 0 0 0 rgba(19, 136, 8, 0); } 
+    }
 
-        /* Super Happy Success Screen */
-        #success-screen { display: none; text-align: center; padding: 100px 40px; position: relative; z-index: 2; }
-        .success-icon-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 30px; }
-        .success-circle { 
-            width: 100%; height: 100%; background: linear-gradient(135deg, var(--green), #0f6608); 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            animation: popScale 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, happyPulse 2s infinite 1s; 
-            box-shadow: 0 15px 35px rgba(19,136,8,0.4); 
-        }
-        .success-circle svg { width: 70px; height: 70px; color: white; stroke-dasharray: 100; stroke-dashoffset: 100; animation: drawCheck 0.8s 0.3s forwards ease-out; }
-        
-        @keyframes popScale { 0% { transform: scale(0); opacity: 0;} 100% { transform: scale(1); opacity: 1;} }
-        @keyframes happyPulse { 
-            0% { box-shadow: 0 0 0 0 rgba(19, 136, 8, 0.5); } 
-            70% { box-shadow: 0 0 0 25px rgba(19, 136, 8, 0); } 
-            100% { box-shadow: 0 0 0 0 rgba(19, 136, 8, 0); } 
-        }
+    #success-screen h2 { color: var(--navy); font-size: 3rem; margin-bottom: 20px; font-weight: 800; animation: slideUpFade 0.8s 0.2s forwards; opacity: 0; }
+    #success-screen p { color: var(--text-muted); line-height: 1.6; margin-bottom: 45px; font-size: 1.3rem; font-weight: 500; animation: slideUpFade 0.8s 0.4s forwards; opacity: 0;}
+    #success-screen .submit-btn { animation: slideUpFade 0.8s 0.6s forwards; opacity: 0; }
+    
+    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        #success-screen h2 { color: var(--navy); font-size: 3rem; margin-bottom: 20px; font-weight: 800; animation: slideUpFade 0.8s 0.2s forwards; opacity: 0; }
-        #success-screen p { color: var(--text-muted); line-height: 1.6; margin-bottom: 45px; font-size: 1.3rem; font-weight: 500; animation: slideUpFade 0.8s 0.4s forwards; opacity: 0;}
-        #success-screen .submit-btn { animation: slideUpFade 0.8s 0.6s forwards; opacity: 0; }
-        
-        @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    /* Full Screen Confetti Overlay */
+    #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; display: none; }
 
-        /* Full Screen Confetti Overlay */
-        #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; display: none; }
-
-        /* Responsive Design */
-        @media (max-width: 900px) {
-            .glass-wrapper { flex-direction: column; }
-            .banner-container { width: 100%; height: 240px; border-right: none; border-bottom: 1px solid rgba(0,0,128,0.08); }
-            .banner-overlay { background: linear-gradient(to bottom, rgba(0,0,128,0.05), rgba(255,255,255,0.95)); }
-            .form-container { width: 100%; padding: 30px; }
-            h1 { font-size: 2.2rem; }
-            .chakra-watermark { right: -40px; bottom: -40px; width: 300px; height: 300px; }
-        }
-    </style>
+    /* Responsive Design */
+    @media (max-width: 900px) {
+        .glass-wrapper { flex-direction: column; }
+        .banner-container { width: 100%; height: 240px; border-right: none; border-bottom: 1px solid rgba(0,0,128,0.08); }
+        .banner-overlay { background: linear-gradient(to bottom, rgba(0,0,128,0.05), rgba(255,255,255,0.95)); }
+        .form-container { width: 100%; padding: 30px; }
+        h1 { font-size: 2.2rem; }
+        .chakra-watermark { right: -40px; bottom: -40px; width: 300px; height: 300px; }
+    }
+</style>
 </head>
 <body>
 
-    <div class="ambient-bg">
-        <div class="blob saffron"></div>
-        <div class="blob green"></div>
-        <div class="blob navy"></div>
-    </div>
+<div class="ambient-bg">
+    <div class="blob saffron"></div>
+    <div class="blob green"></div>
+    <div class="blob navy"></div>
+</div>
 
-    <div id="splash">
-        <div class="splash-text">Mujhe Batao</div>
-        <div class="splash-loader"></div>
-    </div>
+<div id="splash">
+    <div class="splash-text">Mujhe Batao</div>
+    <div class="splash-loader"></div>
+</div>
 
-    <div id="app">
-        <div class="glass-wrapper">
+<div id="app">
+    <div class="glass-wrapper">
+        
+        <div class="banner-container">
+            <img src="banner.png" alt="Festive Banner" class="banner" onerror="this.src='[https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&q=80&w=800&h=1200](https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&q=80&w=800&h=1200)';">
+            <div class="banner-overlay"></div>
+        </div>
+
+        <div class="form-container">
             
-            <div class="banner-container">
-                <img src="banner.png" alt="Festive Banner" class="banner" onerror="this.src='https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&q=80&w=800&h=1200';">
-                <div class="banner-overlay"></div>
-            </div>
+            <svg class="chakra-watermark" viewBox="0 0 120 120" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
+                <circle cx="60" cy="60" r="54" fill="none" stroke="var(--navy)" stroke-width="2.5"></circle>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="var(--navy)" stroke-width="1.5"></circle>
+                <circle cx="60" cy="60" r="51" fill="none" stroke="var(--navy)" stroke-width="2.5" stroke-dasharray="1 12.35" stroke-linecap="round"></circle>
+                <circle cx="60" cy="60" r="8" fill="var(--navy)"></circle>
+                <circle cx="60" cy="60" r="12" fill="none" stroke="var(--navy)" stroke-width="1"></circle>
+                <g stroke="var(--navy)" stroke-width="2" stroke-linecap="round">
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(0 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(15 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(30 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(45 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(60 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(75 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(90 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(105 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(120 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(135 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(150 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(165 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(180 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(195 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(210 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(225 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(240 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(255 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(270 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(285 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(300 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(315 60 60)"/>
+                    <line x1="60" y1="60" x2="60" y2="12" transform="rotate(330 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(345 60 60)"/>
+                </g>
+            </svg>
 
-            <div class="form-container">
-                
-                <svg class="chakra-watermark" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="60" cy="60" r="54" fill="none" stroke="var(--navy)" stroke-width="2.5"></circle>
-                    <circle cx="60" cy="60" r="48" fill="none" stroke="var(--navy)" stroke-width="1.5"></circle>
-                    <circle cx="60" cy="60" r="51" fill="none" stroke="var(--navy)" stroke-width="2.5" stroke-dasharray="1 12.35" stroke-linecap="round"></circle>
-                    <circle cx="60" cy="60" r="8" fill="var(--navy)"></circle>
-                    <circle cx="60" cy="60" r="12" fill="none" stroke="var(--navy)" stroke-width="1"></circle>
-                    <g stroke="var(--navy)" stroke-width="2" stroke-linecap="round">
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(0 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(15 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(30 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(45 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(60 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(75 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(90 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(105 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(120 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(135 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(150 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(165 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(180 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(195 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(210 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(225 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(240 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(255 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(270 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(285 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(300 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(315 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(330 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(345 60 60)"/>
-                    </g>
-                </svg>
+            <main id="complaint-form">
+                <header>
+                    <h1>Mujhe Batao</h1>
+                    <div class="tricolor-line"></div>
+                    <p class="subtitle">A Secure, Anonymous Initiative for the Nation.</p>
+                </header>
 
-                <main id="complaint-form">
-                    <header>
-                        <h1>Mujhe Batao</h1>
-                        <div class="tricolor-line"></div>
-                        <p class="subtitle">A Secure, Anonymous Initiative for the Nation.</p>
-                    </header>
-
-                    <div class="section">
-                        <div class="section-header">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                            Incident Details
-                        </div>
-                        <textarea id="complaintText" placeholder="Describe the incident securely... Every detail helps."></textarea>
-                        <div class="char-counter"><span id="charCount">0</span> / 10000</div>
+                <div class="section">
+                    <div class="section-header">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        Incident Details
                     </div>
-
-                    <div class="section">
-                        <div class="section-header">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--saffron)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                            Photographic Evidence
-                        </div>
-                        <label class="upload-area" id="imageUploadArea">
-                            <div class="upload-icon">
-                                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                            </div>
-                            <span id="imageLabel" style="font-weight: 700; font-size: 1.15rem; color: var(--navy);">Click or Drag image here</span>
-                            <span style="font-size: 0.9rem; color: var(--text-muted); margin-top: 6px;">Secure Client-Side Compression (Max 20MB)</span>
-                            <input type="file" id="imageInput" class="file-input" accept="image/jpeg, image/png, image/webp">
-                        </label>
-                        
-                        <div id="imageVerified" class="verified-badge">
-                            <svg class="check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                            Encrypted & Verified
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <div class="section-header">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-                            Voice Evidence
-                        </div>
-                        <div class="audio-controls">
-                            <button class="btn-record" id="recordBtn">
-                                <span id="recordText">Record Audio</span>
-                            </button>
-                            
-                            <div class="visualizer" id="audioVisualizer">
-                                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-                            </div>
-
-                            <div class="custom-player" id="customPlayer">
-                                <button class="play-btn" id="playPauseBtn">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                                </button>
-                                <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-                            </div>
-                            <audio id="audioPreview" style="display: none;"></audio>
-                        </div>
-                    </div>
-
-                    <div class="submit-wrapper">
-                        <button class="submit-btn" id="submitBtn">
-                            <span class="btn-text">Transmit Securely to Authorities</span>
-                            <div class="loader"></div>
-                        </button>
-                    </div>
-
-                    <div class="disclaimer">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        Jai Hind. Your identity is fully protected and anonymous.
-                    </div>
-                </main>
-
-                <div id="success-screen">
-                    <div class="success-icon-wrapper" id="successIcon">
-                        <div class="success-circle">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                    </div>
-                    <h2>Mission Accomplished!</h2>
-                    <p>Your encrypted report has been successfully transmitted to the authorities. Thank you for making India a safer place.</p>
-                    <button onclick="location.reload()" class="submit-btn" style="width: auto; padding: 18px 45px; margin: 0 auto; border-radius: 50px;">Submit Another Report</button>
+                    <textarea id="complaintText" placeholder="Describe the incident securely... Every detail helps."></textarea>
+                    <div class="char-counter"><span id="charCount">0</span> / 10000 characters</div>
                 </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--saffron)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        Photographic Evidence
+                    </div>
+                    <label class="upload-area" id="imageUploadArea">
+                        <div class="upload-icon">
+                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        </div>
+                        <span id="imageLabel" style="font-weight: 700; font-size: 1.15rem; color: var(--navy);">Click to select image</span>
+                        <span style="font-size: 0.9rem; color: var(--text-muted); margin-top: 6px;">Only image files (jpg, png, etc.)</span>
+                        <input type="file" id="imageInput" class="file-input" accept="image/jpeg, image/png, image/webp">
+                    </label>
+                    
+                    <div id="imageVerified" class="verified-badge">
+                        <svg class="check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        Encrypted & Verified
+                    </div>
+                </div>
+
+                <div class="submit-wrapper">
+                    <button class="submit-btn" id="submitBtn">
+                        <span class="btn-text">Transmit Securely to Authorities</span>
+                        <div class="loader"></div>
+                    </button>
+                </div>
+
+                <div class="disclaimer">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    Jai Hind. Your identity is fully protected and anonymous.
+                </div>
+            </main>
+
+            <div id="success-screen">
+                <div class="success-icon-wrapper" id="successIcon">
+                    <div class="success-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                </div>
+                <h2>Mission Accomplished!</h2>
+                <p>Your encrypted report has been successfully transmitted to the authorities. Thank you for making India a safer place.</p>
+                <button onclick="location.reload()" class="submit-btn" style="width: auto; padding: 18px 45px; margin: 0 auto; border-radius: 50px;">Submit Another Report</button>
             </div>
         </div>
     </div>
+</div>
 
-    <canvas id="confetti-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
 
-    <script>
-        // --- 1. Supabase Initialization (Untouched) ---
-        const supabaseUrl = 'https://qprlfzxlwqcggnglbfdz.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcmxmenhsd3FjZ2duZ2xiZmR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTYxNjgsImV4cCI6MjA4ODM5MjE2OH0.MRzi6G7OGJeUwtef9X1GzDYbk8l0t-IzHh0vnsbuAPY';
-        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+<script>
+    // --- 1. Supabase Initialization (Untouched) ---
+    const supabaseUrl = '[https://qprlfzxlwqcggnglbfdz.supabase.co](https://qprlfzxlwqcggnglbfdz.supabase.co)';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcmxmenhsd3FjZ2duZ2xiZmR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTYxNjgsImV4cCI6MjA4ODM5MjE2OH0.MRzi6G7OGJeUwtef9X1GzDYbk8l0t-IzHh0vnsbuAPY';
+    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // --- 2. Splash Screen Logic ---
-        window.addEventListener('load', () => {
+    // --- 2. Splash Screen Logic ---
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.getElementById('splash').style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash').style.display = 'none';
-                    document.getElementById('app').style.display = 'block';
-                }, 800);
-            }, 1800);
-        });
+                document.getElementById('splash').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+            }, 800);
+        }, 1800);
+    });
 
-        // --- 3. Text Counter Logic ---
-        const complaintText = document.getElementById('complaintText');
-        const charCount = document.getElementById('charCount');
-        complaintText.addEventListener('input', () => {
-            const length = complaintText.value.length;
-            charCount.textContent = length;
-            if(length > 10000) complaintText.value = complaintText.value.substring(0, 10000);
-        });
+    // --- 3. Text Counter Logic ---
+    const complaintText = document.getElementById('complaintText');
+    const charCount = document.getElementById('charCount');
+    complaintText.addEventListener('input', () => {
+        const length = complaintText.value.length;
+        charCount.textContent = length;
+        if(length > 10000) complaintText.value = complaintText.value.substring(0, 10000);
+    });
 
-        // --- 4. Image Compression & Verified Animation ---
-        let compressedImageBlob = null;
-        document.getElementById('imageInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+    // --- 4. Image Compression & Verified Animation (Updated with Photo-Only check) ---
+    let compressedImageBlob = null;
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
 
-            document.getElementById('imageLabel').textContent = "Encrypting...";
-            
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function(event) {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    const MAX_WIDTH = 1920; const MAX_HEIGHT = 1080;
-                    let width = img.width; let height = img.height;
-
-                    if (width > height && width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } 
-                    else if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-
-                    canvas.width = width; canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    canvas.toBlob((blob) => {
-                        compressedImageBlob = blob;
-                        document.getElementById('imageUploadArea').style.display = 'none';
-                        document.getElementById('imageVerified').style.display = 'flex';
-                    }, 'image/webp', 0.8);
-                }
-            }
-        });
-
-        // --- 5. Custom Audio Recording & Playback ---
-        let mediaRecorder;
-        let audioChunks = [];
-        let finalAudioBlob = null;
-        
-        const recordBtn = document.getElementById('recordBtn');
-        const recordText = document.getElementById('recordText');
-        const visualizer = document.getElementById('audioVisualizer');
-        const customPlayer = document.getElementById('customPlayer');
-        const audioPreview = document.getElementById('audioPreview');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const progressFill = document.getElementById('progressFill');
-
-        recordBtn.addEventListener('click', async () => {
-            if (mediaRecorder && mediaRecorder.state === "recording") {
-                mediaRecorder.stop();
-                recordText.textContent = "Re-Record";
-                recordBtn.classList.remove('recording');
-                visualizer.style.display = 'none';
-                return;
-            }
-
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-
-                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-                mediaRecorder.onstop = () => {
-                    finalAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    audioPreview.src = URL.createObjectURL(finalAudioBlob);
-                    customPlayer.style.display = "flex";
-                    stream.getTracks().forEach(track => track.stop());
-                };
-
-                mediaRecorder.start();
-                recordText.textContent = "Stop Recording";
-                recordBtn.classList.add('recording');
-                visualizer.style.display = 'flex';
-                customPlayer.style.display = "none";
-            } catch (err) { alert("Microphone access denied or unavailable."); }
-        });
-
-        // Custom Player Logic
-        playPauseBtn.addEventListener('click', () => {
-            if(audioPreview.paused) {
-                audioPreview.play();
-                playPauseBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
-            } else {
-                audioPreview.pause();
-                playPauseBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
-            }
-        });
-
-        audioPreview.addEventListener('timeupdate', () => {
-            const progress = (audioPreview.currentTime / audioPreview.duration) * 100;
-            progressFill.style.width = `${progress}%`;
-        });
-        audioPreview.addEventListener('ended', () => {
-            playPauseBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
-            progressFill.style.width = '0%';
-        });
-
-        // --- 6. Form Submission, Location Auto-Prompt & Extreme Confetti ---
-        document.getElementById('submitBtn').addEventListener('click', async () => {
-            const text = complaintText.value.trim();
-            if (!text && !compressedImageBlob && !finalAudioBlob) {
-                alert("Please provide text, image, or audio evidence to proceed.");
-                return;
-            }
-
-            const btn = document.getElementById('submitBtn');
-            btn.classList.add('loading');
-            btn.disabled = true;
-
-            try {
-                // Auto Location Trigger with IP Fallback
-                let lat = null, lng = null, ip = null;
-                try {
-                    const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, {timeout: 5000}));
-                    lat = pos.coords.latitude; lng = pos.coords.longitude;
-                } catch(e) {
-                    try {
-                        const res = await fetch('https://ipapi.co/json/');
-                        const data = await res.json();
-                        lat = data.latitude; lng = data.longitude; ip = data.ip;
-                    } catch(err) { console.log("Location fallback failed"); }
-                }
-
-                // Upload Image
-                let imageUrl = null;
-                if (compressedImageBlob) {
-                    const fileName = `img_${Date.now()}.webp`;
-                    const { data, error } = await supabaseClient.storage.from('complaint-images').upload(fileName, compressedImageBlob);
-                    if(!error) imageUrl = data.path; 
-                }
-
-                // Upload Audio
-                let audioUrl = null;
-                if (finalAudioBlob) {
-                    const fileName = `aud_${Date.now()}.webm`;
-                    const { data, error } = await supabaseClient.storage.from('complaint-audio').upload(fileName, finalAudioBlob);
-                    if(!error) audioUrl = data.path; 
-                }
-
-                // Database Insert
-                const { error: dbError } = await supabaseClient.from('complaints').insert([{
-                    complaint_text: text,
-                    image_url: imageUrl,
-                    audio_url: audioUrl,
-                    latitude: lat,
-                    longitude: lng,
-                    ip_address: ip,
-                    device_info: navigator.userAgent
-                }]);
-
-                if (dbError) throw dbError;
-
-                // Trigger Success Screen & Epic Confetti
-                document.getElementById('complaint-form').style.display = 'none';
-                document.getElementById('success-screen').style.display = 'block';
-                fireEpicConfetti();
-
-            } catch (error) {
-                console.error(error);
-                alert("An error occurred during secure transmission. Please try again.");
-            } finally {
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }
-        });
-
-        // Epic Full-Screen JS Canvas Confetti Logic (No External Libraries)
-        function fireEpicConfetti() {
-            const canvas = document.getElementById('confetti-canvas');
-            canvas.style.display = 'block';
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            const particles = [];
-            const colors = ['#FF9933', '#FFFFFF', '#138808', '#000080'];
-
-            for (let i = 0; i < 150; i++) {
-                particles.push({
-                    x: canvas.width / 2,
-                    y: canvas.height / 2 + 100,
-                    r: Math.random() * 6 + 4,
-                    dx: Math.random() * 20 - 10,
-                    dy: Math.random() * -20 - 5,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    tilt: Math.floor(Math.random() * 10) - 10,
-                    tiltAngle: 0,
-                    tiltAngleInc: (Math.random() * 0.07) + 0.05
-                });
-            }
-
-            let animationId;
-            function draw() {
-                animationId = requestAnimationFrame(draw);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                particles.forEach((p, index) => {
-                    p.tiltAngle += p.tiltAngleInc;
-                    p.y += (Math.cos(p.tiltAngle) + 2 + p.r / 2) / 2;
-                    p.x += Math.sin(p.tiltAngle) * 2;
-                    p.dy += 0.2; // Gravity
-                    p.x += p.dx;
-                    p.y += p.dy;
-
-                    ctx.beginPath();
-                    ctx.lineWidth = p.r;
-                    ctx.strokeStyle = p.color;
-                    ctx.moveTo(p.x + p.tilt + p.r, p.y);
-                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
-                    ctx.stroke();
-
-                    // Remove particles that are off-screen
-                    if (p.y > canvas.height) particles.splice(index, 1);
-                });
-
-                if (particles.length === 0) {
-                    cancelAnimationFrame(animationId);
-                    canvas.style.display = 'none';
-                }
-            }
-            draw();
+        // RESTRICTION CHECK: Tell user like "Please select photo only"
+        if (!file.type.startsWith('image/')) {
+            alert("Please select photo only.");
+            e.target.value = ""; // Clear the input
+            return;
         }
-    </script>
+
+        document.getElementById('imageLabel').textContent = "Encrypting...";
+        
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                const MAX_WIDTH = 1920; const MAX_HEIGHT = 1080;
+                let width = img.width; let height = img.height;
+
+                if (width > height && width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } 
+                else if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+
+                canvas.width = width; canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                canvas.toBlob((blob) => {
+                    compressedImageBlob = blob;
+                    document.getElementById('imageUploadArea').style.display = 'none';
+                    document.getElementById('imageVerified').style.display = 'flex';
+                }, 'image/webp', 0.8);
+            }
+        }
+    });
+
+    // --- 5. Custom Audio Recording removed - NO OTHER FILES ALLOWED ---
+
+    // --- 6. Form Submission, Location Auto-Prompt & Extreme Confetti ---
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+        const text = complaintText.value.trim();
+        // Updated check: only text or image allowed now
+        if (!text && !compressedImageBlob) {
+            alert("Please provide text or photo evidence to proceed.");
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.classList.add('loading');
+        btn.disabled = true;
+
+        try {
+            // Auto Location Trigger with IP Fallback
+            let lat = null, lng = null, ip = null;
+            try {
+                const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, {timeout: 5000}));
+                lat = pos.coords.latitude; lng = pos.coords.longitude;
+            } catch(e) {
+                try {
+                    const res = await fetch('[https://ipapi.co/json/](https://ipapi.co/json/)');
+                    const data = await res.json();
+                    lat = data.latitude; lng = data.longitude; ip = data.ip;
+                } catch(err) { console.log("Location fallback failed"); }
+            }
+
+            // Upload Image
+            let imageUrl = null;
+            if (compressedImageBlob) {
+                const fileName = `img_${Date.now()}.webp`;
+                const { data, error } = await supabaseClient.storage.from('complaint-images').upload(fileName, compressedImageBlob);
+                if(!error) imageUrl = data.path; 
+            }
+
+            // Upload Audio removed - NO OTHER FILES ALLOWED
+            let audioUrl = null;
+
+            // Database Insert (Untouched logic)
+            const { error: dbError } = await supabaseClient.from('complaints').insert([{
+                complaint_text: text,
+                image_url: imageUrl,
+                audio_url: audioUrl,
+                latitude: lat,
+                longitude: lng,
+                ip_address: ip,
+                device_info: navigator.userAgent
+            }]);
+
+            if (dbError) throw dbError;
+
+            // Trigger Success Screen & Epic Confetti
+            document.getElementById('complaint-form').style.display = 'none';
+            document.getElementById('success-screen').style.display = 'block';
+            fireEpicConfetti();
+
+        } catch (error) {
+            console.error(error);
+            alert("An error occurred during secure transmission. Please try again.");
+        } finally {
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }
+    });
+
+    // Epic Full-Screen JS Canvas Confetti Logic (No External Libraries)
+    function fireEpicConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        canvas.style.display = 'block';
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const colors = ['#FF9933', '#FFFFFF', '#138808', '#000080'];
+
+        for (let i = 0; i < 150; i++) {
+            particles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2 + 100,
+                r: Math.random() * 6 + 4,
+                dx: Math.random() * 20 - 10,
+                dy: Math.random() * -20 - 5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                tilt: Math.floor(Math.random() * 10) - 10,
+                tiltAngle: 0,
+                tiltAngleInc: (Math.random() * 0.07) + 0.05
+            });
+        }
+
+        let animationId;
+        function draw() {
+            animationId = requestAnimationFrame(draw);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach((p, index) => {
+                p.tiltAngle += p.tiltAngleInc;
+                p.y += (Math.cos(p.tiltAngle) + 2 + p.r / 2) / 2;
+                p.x += Math.sin(p.tiltAngle) * 2;
+                p.dy += 0.2; // Gravity
+                p.x += p.dx;
+                p.y += p.dy;
+
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.r, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+                ctx.stroke();
+
+                // Remove particles that are off-screen
+                if (p.y > canvas.height) particles.splice(index, 1);
+            });
+
+            if (particles.length === 0) {
+                cancelAnimationFrame(animationId);
+                canvas.style.display = 'none';
+            }
+        }
+        draw();
+    }
+</script>
 </body>
 </html>
