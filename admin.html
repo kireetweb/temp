@@ -3,47 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin | Mujhe Batao</title>
+    <title>Intelligence Dashboard | Mujhe Batao</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .meta { font-size: 0.85rem; color: #666; margin-bottom: 10px; }
-        .evidence-icons { display: flex; gap: 10px; margin-top: 15px; }
-        .icon { padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; background: #eee; color: #aaa; text-decoration: none; }
-        .icon.active { background: #e3f2fd; color: #1976d2; cursor: pointer; }
-        #login-section { display: flex; flex-direction: column; max-width: 300px; margin: 100px auto; }
-        input, button { margin-bottom: 10px; padding: 10px; border-radius: 4px; border: 1px solid #ccc; }
-        button { background: #000080; color: white; border: none; cursor: pointer; }
+        :root {
+            --bg-color: #0b0f19;
+            --surface: rgba(20, 25, 40, 0.6);
+            --surface-hover: rgba(30, 38, 56, 0.8);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f0f2f5;
+            --text-muted: #8b949e;
+            --saffron: #FF9933;
+            --white: #FFFFFF;
+            --green: #138808;
+            --accent: #FF9933;
+            --danger: #ef4444;
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Tricolor Glows */
+        .ambient-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .glow-saffron { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--saffron); }
+        .glow-green { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: var(--green); }
+
+        /* Typography & Utilities */
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+
+        /* Buttons & Inputs */
+        input, select {
+            width: 100%; padding: 14px 16px;
+            background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+            color: var(--text-main); border-radius: 8px;
+            font-family: inherit; font-size: 0.95rem; outline: none;
+            transition: var(--transition);
+        }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,153,51,0.1); }
+        select { appearance: none; cursor: pointer; }
+        option { background: var(--bg-color); color: var(--text-main); }
+        
+        button {
+            background: linear-gradient(135deg, var(--saffron), #e68a2e);
+            color: white; border: none; padding: 14px 24px;
+            border-radius: 8px; font-weight: 600; cursor: pointer;
+            transition: var(--transition); font-family: inherit;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255,153,51,0.3); }
+        button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        button.secondary:hover { background: rgba(255,255,255,0.05); box-shadow: none; }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .toast {
+            background: var(--surface); border-left: 4px solid var(--danger);
+            color: var(--text-main); padding: 16px 24px; border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+            transform: translateX(120%); animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .toast.success { border-left-color: var(--green); }
+        @keyframes slideIn { to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        /* Login Section */
+        #login-section {
+            max-width: 400px; margin: 12vh auto; padding: 40px;
+            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .auth-logo { margin-bottom: 30px; display: inline-flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+        .auth-logo svg { width: 32px; height: 32px; fill: var(--saffron); }
+        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
+        .toggle-password {
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; padding: 0; cursor: pointer;
+            color: var(--text-muted); display: flex;
+        }
+        .toggle-password:hover { color: var(--text-main); transform: translateY(-50%) scale(1.1); box-shadow: none; }
+
+        /* Dashboard Setup */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header h2 { font-weight: 600; font-size: 1.8rem; letter-spacing: -0.5px; }
+        
+        .controls {
+            display: grid; grid-template-columns: 1fr auto; gap: 15px; margin-bottom: 30px;
+            background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border);
+        }
+        .search-wrapper { position: relative; }
+        .search-wrapper svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; }
+        .search-wrapper input { padding-left: 45px; background: rgba(0,0,0,0.4); border: none; }
+        
+        /* Data Grid */
+        #complaints-grid { display: grid; gap: 15px; }
+        .data-row {
+            display: grid; grid-template-columns: 120px 1fr auto; gap: 20px; align-items: center;
+            padding: 20px 25px; cursor: pointer; transition: var(--transition);
+        }
+        .data-row:hover { background: var(--surface-hover); transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
+        .row-id { font-size: 0.85rem; color: var(--saffron); font-weight: 600; }
+        .row-text { font-size: 1rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 600px; }
+        .row-date { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+        
+        .evidence-badges { display: flex; gap: 8px; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
+            border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+            background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .badge svg { width: 14px; height: 14px; }
+        .badge.disabled { opacity: 0.2; filter: grayscale(1); }
+        .badge.active { background: rgba(255,153,51,0.1); color: var(--saffron); border-color: rgba(255,153,51,0.3); }
+
+        /* Loader */
+        #loader {
+            display: none; position: fixed; inset: 0; background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(8px); z-index: 1000; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .spinner {
+            width: 60px; height: 60px; border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--saffron); border-right-color: var(--white); border-bottom-color: var(--green);
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Modal Overlay */
+        #modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            z-index: 2000; justify-content: center; align-items: center; padding: 20px;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal {
+            background: #111622; width: 100%; max-width: 900px; max-height: 90vh;
+            border-radius: 24px; border: 1px solid var(--border); overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+            transform: scale(0.95) translateY(20px); transition: var(--transition);
+        }
+        #modal-overlay.active { opacity: 1; }
+        #modal-overlay.active .modal { transform: scale(1) translateY(0); }
+        
+        .modal-header {
+            padding: 24px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(10px);
+        }
+        .modal-meta span { display: block; }
+        .modal-title { font-size: 1.25rem; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+        .modal-subtitle { font-size: 0.85rem; color: var(--text-muted); }
+        .close-btn { background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; color: white; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: var(--transition); }
+        .close-btn:hover { background: var(--danger); transform: rotate(90deg); }
+
+        .modal-body { padding: 30px; display: flex; flex-direction: column; gap: 24px; }
+        
+        .intel-block { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+        .intel-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .intel-label svg { width: 14px; height: 14px; color: var(--saffron); }
+
+        .hacker-badge {
+            display: inline-flex; align-items: center; gap: 10px; background: #000; padding: 8px 16px;
+            border-radius: 8px; border: 1px solid #333; color: var(--green); cursor: pointer;
+            transition: var(--transition);
+        }
+        .hacker-badge:hover { border-color: var(--green); box-shadow: 0 0 10px rgba(19, 136, 8, 0.2); }
+
+        .evidence-img { width: 100%; max-height: 400px; object-fit: contain; border-radius: 12px; background: #000; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        
+        /* Custom Audio Player */
+        .audio-player { display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.5); padding: 15px 20px; border-radius: 12px; }
+        .play-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--saffron); border: none; color: #000; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .play-btn:hover { transform: scale(1.05); }
+        .progress-container { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; cursor: pointer; position: relative; }
+        .progress-bar { height: 100%; background: var(--saffron); border-radius: 3px; width: 0%; pointer-events: none; position: relative; }
+        .progress-bar::after { content: ''; position: absolute; right: -6px; top: -3px; width: 12px; height: 12px; background: var(--white); border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .time-display { font-size: 0.85rem; color: var(--text-muted); font-variant-numeric: tabular-nums; width: 45px; }
+
+        .map-container { width: 100%; height: 250px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+        .map-container iframe { width: 100%; height: 100%; border: none; filter: invert(90%) hue-rotate(180deg) contrast(100%); } /* Dark mode map hack */
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
     </style>
 </head>
 <body>
 
+    <div class="ambient-glow glow-saffron"></div>
+    <div class="ambient-glow glow-green"></div>
+
+    <div id="toast-container"></div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p class="mono" style="color: var(--saffron); letter-spacing: 1px;">DECRYPTING SECURE INTEL...</p>
+    </div>
+
     <div class="container">
-        <div id="login-section">
-            <h2>Admin Login</h2>
-            <input type="email" id="email" placeholder="Admin Email">
-            <input type="password" id="password" placeholder="Password">
-            <button onclick="login()">Login</button>
+        <div id="login-section" class="glass">
+            <div class="auth-logo">
+                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                MUJHE BATAO INTEL
+            </div>
+            <div class="input-group">
+                <input type="email" id="email" placeholder="Operative Email" autocomplete="email">
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Passkey">
+                <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Toggle Password">
+                    <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+            </div>
+            <button onclick="login()" style="width: 100%;">Authenticate Session</button>
         </div>
 
         <div id="dashboard" style="display: none;">
             <div class="header">
-                <h2>Complaint Dashboard</h2>
-                <button onclick="logout()" style="width: auto;">Logout</button>
+                <h2>Secure Intelligence Feed</h2>
+                <button class="secondary" onclick="logout()">Terminate Session</button>
             </div>
-            <div id="complaints-list"></div>
+
+            <div class="controls glass">
+                <div class="search-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-input" placeholder="Query text, ID, or IP Address..." oninput="filterData()">
+                </div>
+                <select id="date-filter" onchange="filterData()">
+                    <option value="all">All Transmissions</option>
+                    <option value="today">Past 24 Hours</option>
+                    <option value="week">Past 7 Days</option>
+                    <option value="month">Past 30 Days</option>
+                </select>
+            </div>
+
+            <div id="complaints-grid"></div>
+        </div>
+    </div>
+
+    <div id="modal-overlay" onclick="closeModal(event)">
+        <div class="modal glass" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-meta">
+                    <span class="modal-title mono" id="m-id">FILE #000</span>
+                    <span class="modal-subtitle" id="m-date">Date Time • Size: --</span>
+                </div>
+                <button class="close-btn" onclick="closeModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="intel-block" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="intel-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg> Origin IP Trace</div>
+                        <div class="hacker-badge mono" id="m-ip-container" onclick="copyIP()">
+                            <span id="m-ip">192.168.1.1</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="intel-block">
+                    <div class="intel-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Intercepted Transcript</div>
+                    <p id="m-text" style="line-height: 1.6; color: var(--text-main); font-size: 1.05rem;"></p>
+                </div>
+
+                <div class="intel-block" id="m-audio-section">
+                    <div class="intel-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg> Audio Surveillance</div>
+                    <div class="audio-player">
+                        <button class="play-btn" onclick="toggleAudio()">
+                            <svg id="play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </button>
+                        <span class="time-display" id="audio-current">0:00</span>
+                        <div class="progress-container" id="audio-track" onclick="seekAudio(event)">
+                            <div class="progress-bar" id="audio-progress"></div>
+                        </div>
+                        <span class="time-display" id="audio-duration">0:00</span>
+                        <audio id="m-audio" ontimeupdate="updateProgress()" onloadedmetadata="setDuration()" onended="audioEnded()"></audio>
+                    </div>
+                </div>
+
+                <div class="intel-block" id="m-image-section">
+                    <div class="intel-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> Visual Evidence</div>
+                    <img id="m-image" class="evidence-img" src="" alt="Evidence Image">
+                </div>
+
+                <div class="intel-block" id="m-map-section">
+                    <div class="intel-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Geolocation Coordinates</div>
+                    <div class="map-container">
+                        <iframe id="m-map" src="" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Updated to supabaseClient to prevent crashes
+        // Supabase Initialization
         const supabaseUrl = 'https://qprlfzxlwqcggnglbfdz.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcmxmenhsd3FjZ2duZ2xiZmR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTYxNjgsImV4cCI6MjA4ODM5MjE2OH0.MRzi6G7OGJeUwtef9X1GzDYbk8l0t-IzHh0vnsbuAPY';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+        let globalData = [];
+        let isAudioPlaying = false;
+
+        // UI Helpers
+        function showToast(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'error' 
+                ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
+                : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.4s forwards';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        function showLoading(show) {
+            document.getElementById('loader').style.display = show ? 'flex' : 'none';
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+            }
+        }
+
+        // Enter key to login
+        document.getElementById('password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') login();
+        });
+
+        // Authentication Logic
         async function checkSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
@@ -56,8 +386,13 @@
         async function login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            if(!email || !password) return showToast('Provide Operative Email and Passkey', 'error');
+            
+            showLoading(true);
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) alert(error.message);
+            showLoading(false);
+            
+            if (error) showToast("Access Denied: " + error.message, 'error');
             else checkSession();
         }
 
@@ -66,51 +401,231 @@
             location.reload();
         }
 
+        // Data Fetching & Rendering
         async function fetchComplaints() {
+            showLoading(true);
             const { data, error } = await supabaseClient.from('complaints').select('*').order('created_at', { ascending: false });
-            if (error) { console.error(error); return; }
+            if (error) { 
+                showLoading(false);
+                return showToast('Intel fetch failed.', 'error');
+            }
 
-            // Generate secure, expiring URLs for the evidence
-            const complaintsWithUrls = await Promise.all(data.map(async (c) => {
-                let secureImageUrl = '#';
-                let secureAudioUrl = '#';
+            globalData = await Promise.all(data.map(async (c) => {
+                let secureImageUrl = null;
+                let secureAudioUrl = null;
 
-                // Generate 1-hour secure URL for images
                 if (c.image_url) {
-                    if (c.image_url.startsWith('http')) { 
-                        secureImageUrl = c.image_url; // Failsafe for old test data
-                    } else {
+                    if (c.image_url.startsWith('http')) secureImageUrl = c.image_url;
+                    else {
                         const { data: imgData } = await supabaseClient.storage.from('complaint-images').createSignedUrl(c.image_url, 3600);
                         if (imgData) secureImageUrl = imgData.signedUrl;
                     }
                 }
-
-                // Generate 1-hour secure URL for audio
                 if (c.audio_url) {
-                    if (c.audio_url.startsWith('http')) {
-                        secureAudioUrl = c.audio_url; // Failsafe for old test data
-                    } else {
+                    if (c.audio_url.startsWith('http')) secureAudioUrl = c.audio_url;
+                    else {
                         const { data: audData } = await supabaseClient.storage.from('complaint-audio').createSignedUrl(c.audio_url, 3600);
                         if (audData) secureAudioUrl = audData.signedUrl;
                     }
                 }
-
                 return { ...c, secureImageUrl, secureAudioUrl };
             }));
 
-            // Render the dashboard
-            const list = document.getElementById('complaints-list');
-            list.innerHTML = complaintsWithUrls.map(c => `
-                <div class="card">
-                    <div class="meta">ID: ${c.id} | Date: ${new Date(c.created_at).toLocaleString()} | IP: ${c.ip_address || 'N/A'} | Loc: ${c.latitude ? c.latitude+','+c.longitude : 'N/A'}</div>
-                    <p>${c.complaint_text || '<i>No text provided</i>'}</p>
-                    <div class="evidence-icons">
-                        <span class="icon ${c.complaint_text ? 'active' : ''}">📝 Text</span>
-                        <a href="${c.secureImageUrl}" target="_blank" class="icon ${c.image_url ? 'active' : ''}" style="${!c.image_url ? 'pointer-events:none;' : ''}">📸 Image</a>
-                        <a href="${c.secureAudioUrl}" target="_blank" class="icon ${c.audio_url ? 'active' : ''}" style="${!c.audio_url ? 'pointer-events:none;' : ''}">🎤 Audio</a>
+            showLoading(false);
+            renderDashboard(globalData);
+        }
+
+        function renderDashboard(data) {
+            const list = document.getElementById('complaints-grid');
+            if(data.length === 0) {
+                list.innerHTML = '<div class="glass" style="padding:40px; text-align:center; color: var(--text-muted);">No secure transmissions found matching criteria.</div>';
+                return;
+            }
+
+            list.innerHTML = data.map(c => {
+                const date = new Date(c.created_at);
+                const hasText = !!c.complaint_text;
+                const hasImg = !!c.image_url;
+                const hasAud = !!c.audio_url;
+                const hasLoc = !!(c.latitude && c.longitude);
+
+                return `
+                <div class="data-row glass" onclick="openModal('${c.id}')">
+                    <div>
+                        <div class="row-id mono">#${String(c.id).padStart(5, '0')}</div>
+                        <div class="row-date">${date.toLocaleDateString()}</div>
                     </div>
-                </div>
-            `).join('');
+                    <div class="row-text">${c.complaint_text || '<i style="color:var(--text-muted)">[No text payload provided]</i>'}</div>
+                    <div class="evidence-badges">
+                        <span class="badge ${hasText ? 'active' : 'disabled'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span>
+                        <span class="badge ${hasImg ? 'active' : 'disabled'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>
+                        <span class="badge ${hasAud ? 'active' : 'disabled'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg></span>
+                        <span class="badge ${hasLoc ? 'active' : 'disabled'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function filterData() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const timeFilter = document.getElementById('date-filter').value;
+            const now = new Date();
+
+            const filtered = globalData.filter(c => {
+                const matchesSearch = (c.complaint_text && c.complaint_text.toLowerCase().includes(search)) || 
+                                      String(c.id).includes(search) || 
+                                      (c.ip_address && c.ip_address.includes(search));
+                
+                let matchesTime = true;
+                const cDate = new Date(c.created_at);
+                const diffTime = Math.abs(now - cDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+                if (timeFilter === 'today') matchesTime = diffDays <= 1;
+                else if (timeFilter === 'week') matchesTime = diffDays <= 7;
+                else if (timeFilter === 'month') matchesTime = diffDays <= 30;
+
+                return matchesSearch && matchesTime;
+            });
+
+            renderDashboard(filtered);
+        }
+
+        // Modal & Detail View Logic
+        function openModal(id) {
+            const data = globalData.find(c => String(c.id) === String(id));
+            if(!data) return;
+
+            // Header info
+            document.getElementById('m-id').innerText = `FILE #${String(data.id).padStart(5, '0')}`;
+            const date = new Date(data.created_at);
+            const simulatedSize = (Math.random() * (4.5 - 0.5) + 0.5).toFixed(1);
+            document.getElementById('m-date').innerText = `${date.toLocaleDateString()} • ${date.toLocaleTimeString()} • Size: ~${simulatedSize} MB`;
+
+            // IP
+            if(data.ip_address) {
+                document.getElementById('m-ip').innerText = data.ip_address;
+                document.getElementById('m-ip-container').style.display = 'inline-flex';
+            } else {
+                document.getElementById('m-ip-container').style.display = 'none';
+            }
+
+            // Text
+            document.getElementById('m-text').innerHTML = data.complaint_text 
+                ? data.complaint_text.replace(/\n/g, '<br>') 
+                : '<i style="color:var(--text-muted)">No text transcript available in this payload.</i>';
+
+            // Image
+            const imgSec = document.getElementById('m-image-section');
+            if(data.secureImageUrl) {
+                document.getElementById('m-image').src = data.secureImageUrl;
+                imgSec.style.display = 'block';
+            } else {
+                imgSec.style.display = 'none';
+                document.getElementById('m-image').src = '';
+            }
+
+            // Audio
+            const audSec = document.getElementById('m-audio-section');
+            const audioEl = document.getElementById('m-audio');
+            if(data.secureAudioUrl) {
+                audioEl.src = data.secureAudioUrl;
+                audSec.style.display = 'block';
+                resetAudioPlayer();
+            } else {
+                audSec.style.display = 'none';
+                audioEl.src = '';
+            }
+
+            // Location
+            const mapSec = document.getElementById('m-map-section');
+            if(data.latitude && data.longitude) {
+                document.getElementById('m-map').src = `https://maps.google.com/maps?q=${data.latitude},${data.longitude}&hl=en&z=14&output=embed`;
+                mapSec.style.display = 'block';
+            } else {
+                mapSec.style.display = 'none';
+                document.getElementById('m-map').src = '';
+            }
+
+            document.getElementById('modal-overlay').style.display = 'flex';
+            // Slight delay to trigger CSS transition
+            setTimeout(() => document.getElementById('modal-overlay').classList.add('active'), 10);
+        }
+
+        function closeModal(e) {
+            if(e && e.target.id !== 'modal-overlay' && e.target.closest('.close-btn') === null) return;
+            document.getElementById('modal-overlay').classList.remove('active');
+            
+            // Pause audio if playing
+            const audioEl = document.getElementById('m-audio');
+            audioEl.pause();
+            
+            setTimeout(() => {
+                document.getElementById('modal-overlay').style.display = 'none';
+            }, 300);
+        }
+
+        function copyIP() {
+            const ip = document.getElementById('m-ip').innerText;
+            navigator.clipboard.writeText(ip);
+            showToast('IP Address traced and copied to clipboard.', 'success');
+        }
+
+        // Custom Audio Player Logic
+        function toggleAudio() {
+            const audio = document.getElementById('m-audio');
+            const icon = document.getElementById('play-icon');
+            if (audio.paused) {
+                audio.play();
+                icon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+            } else {
+                audio.pause();
+                icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+            }
+        }
+
+        function updateProgress() {
+            const audio = document.getElementById('m-audio');
+            const progress = document.getElementById('audio-progress');
+            const current = document.getElementById('audio-current');
+            
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = `${percent}%`;
+                current.innerText = formatTime(audio.currentTime);
+            }
+        }
+
+        function setDuration() {
+            const audio = document.getElementById('m-audio');
+            document.getElementById('audio-duration').innerText = formatTime(audio.duration);
+        }
+
+        function seekAudio(e) {
+            const audio = document.getElementById('m-audio');
+            const track = document.getElementById('audio-track');
+            const percent = e.offsetX / track.offsetWidth;
+            audio.currentTime = percent * audio.duration;
+        }
+
+        function audioEnded() {
+            document.getElementById('play-icon').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+            document.getElementById('audio-progress').style.width = '0%';
+            document.getElementById('audio-current').innerText = '0:00';
+        }
+
+        function resetAudioPlayer() {
+            document.getElementById('play-icon').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+            document.getElementById('audio-progress').style.width = '0%';
+            document.getElementById('audio-current').innerText = '0:00';
+            document.getElementById('audio-duration').innerText = '0:00';
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec.toString().padStart(2, '0')}`;
         }
 
         checkSession();
