@@ -18,7 +18,7 @@
             --text-muted: #475569;
             --glass-bg: rgba(255, 255, 255, 0.90);
             --glass-border: rgba(255, 255, 255, 0.7);
-            --glass-shadow: 0 40px 80px -20px rgba(0, 0, 128, 0.2);
+            --glass-shadow: 0 40px 80px -20px rgba(0, 0, 128, 0.15);
             --danger: #ef4444;
         }
 
@@ -80,10 +80,10 @@
             display: flex; flex-direction: row; position: relative;
         }
 
-        /* Professional Ashoka Chakra Watermark */
+        /* Professional Ashoka Chakra Watermark - FIXED Z-INDEX & DESIGN */
         .chakra-watermark {
-            position: absolute; right: -80px; bottom: -80px; width: 500px; height: 500px;
-            opacity: 0.05; pointer-events: none; z-index: 0;
+            position: absolute; right: -80px; bottom: -80px; width: 480px; height: 480px;
+            opacity: 0.08; pointer-events: none; z-index: 0;
             animation: spin 90s linear infinite;
         }
 
@@ -91,6 +91,7 @@
         .banner-container {
             width: 42%; position: relative; background: #eee;
             border-right: 1px solid rgba(0,0,128,0.08); flex-shrink: 0;
+            z-index: 1;
         }
         .banner { width: 100%; height: 100%; object-fit: cover; object-position: center; }
         .banner-overlay {
@@ -101,14 +102,19 @@
         /* Form Container */
         .form-container { width: 58%; padding: 45px; position: relative; z-index: 1; }
 
-        header { margin-bottom: 35px; }
+        header { margin-bottom: 35px; position: relative; z-index: 2; }
         h1 { color: var(--navy); font-size: 2.8rem; font-weight: 800; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
         .tricolor-line { height: 5px; width: 70px; background: linear-gradient(90deg, var(--saffron) 33%, var(--white) 33%, var(--white) 66%, var(--green) 66%); border-radius: 3px; margin-top: 10px; }
         .subtitle { color: var(--text-muted); font-size: 1.1rem; font-weight: 500; margin-top: 10px; }
 
         /* Form Sections */
-        .section { margin-bottom: 30px; background: rgba(255,255,255,0.7); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 4px 20px rgba(0,0,0,0.02); transition: transform 0.3s ease;}
-        .section:hover { transform: translateY(-2px); }
+        .section { 
+            position: relative; z-index: 2; margin-bottom: 30px; 
+            background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);
+            padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.9); 
+            box-shadow: 0 4px 25px rgba(0,0,0,0.03); transition: transform 0.3s ease;
+        }
+        .section:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
         .section-header { font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;}
         
         /* Text Area */
@@ -169,52 +175,47 @@
         .bar:nth-child(4) { background: var(--saffron); animation-delay: 0.45s; }
         @keyframes bounce { from { height: 6px; } to { height: 26px; } }
 
-        /* Custom Audio Player UI (Tricolor Progress) */
+        /* Custom Audio Player UI */
         .custom-player { display: none; flex: 1; align-items: center; gap: 15px; }
         .play-btn { background: var(--saffron); color: white; border: none; width: 46px; height: 46px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .play-btn:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(255, 153, 51, 0.3); }
         .progress-track { flex: 1; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
         .progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, var(--saffron), var(--green)); width: 0%; transition: width 0.1s linear; }
 
-        /* Patriotic Submit Button */
-        .submit-wrapper { position: relative; padding: 4px; border-radius: 16px; background: transparent; overflow: hidden; margin-top: 25px; }
-        .submit-wrapper::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(from 0deg, var(--saffron), var(--white), var(--green), var(--white), var(--saffron));
-            animation: rotateBg 3s linear infinite; z-index: -1;
-        }
-        @keyframes rotateBg { 100% { transform: rotate(360deg); } }
-        
+        /* Patriotic Submit Button - FIXED, NO GLITCHY ROTATION */
+        .submit-wrapper { position: relative; margin-top: 25px; z-index: 2;}
         .submit-btn {
             width: 100%; padding: 22px; background: var(--navy); color: white; border: none;
-            border-radius: 12px; font-size: 1.3rem; font-weight: 800; cursor: pointer;
+            border-radius: 12px; font-size: 1.25rem; font-weight: 800; cursor: pointer;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; gap: 12px;
-            text-transform: uppercase; letter-spacing: 1px;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 128, 0.2);
         }
-        /* FIXED HOVER STATE: Solid White, Navy Text, Elevates seamlessly */
         .submit-btn:hover { 
-            background: var(--white); 
-            color: var(--navy); 
-            box-shadow: 0 10px 25px rgba(0,0,128,0.2);
+            background: var(--navy-light); 
+            box-shadow: 0 10px 25px rgba(0,0,128,0.3);
             transform: translateY(-2px);
         }
-        .submit-btn:disabled { opacity: 0.9; cursor: not-allowed; }
+        .submit-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(0,0,128,0.2);
+        }
+        .submit-btn:disabled { opacity: 0.85; cursor: not-allowed; transform: none; box-shadow: none; background: #64748b;}
 
         .loader {
-            display: none; width: 28px; height: 28px; border-radius: 50%;
-            border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--saffron); border-right-color: var(--green);
+            display: none; width: 26px; height: 26px; border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.2); border-top-color: var(--saffron); border-right-color: var(--green);
             animation: spin 1s linear infinite;
         }
-        .submit-btn:hover .loader { border-color: rgba(0,0,128,0.2); border-top-color: var(--saffron); border-right-color: var(--green); }
         .loading .btn-text { display: none; }
         .loading .loader { display: block; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* Disclaimer */
-        .disclaimer { font-size: 0.95rem; color: var(--text-muted); text-align: center; margin-top: 25px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .disclaimer { font-size: 0.95rem; color: var(--text-muted); text-align: center; margin-top: 25px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; z-index: 2; position: relative;}
 
         /* Super Happy Success Screen */
-        #success-screen { display: none; text-align: center; padding: 100px 40px; position: relative; z-index: 2; }
+        #success-screen { display: none; text-align: center; padding: 100px 40px; position: relative; z-index: 3; }
         .success-icon-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 30px; }
         .success-circle { 
             width: 100%; height: 100%; background: linear-gradient(135deg, var(--green), #0f6608); 
@@ -233,7 +234,7 @@
 
         #success-screen h2 { color: var(--navy); font-size: 3rem; margin-bottom: 20px; font-weight: 800; animation: slideUpFade 0.8s 0.2s forwards; opacity: 0; }
         #success-screen p { color: var(--text-muted); line-height: 1.6; margin-bottom: 45px; font-size: 1.3rem; font-weight: 500; animation: slideUpFade 0.8s 0.4s forwards; opacity: 0;}
-        #success-screen .submit-btn { animation: slideUpFade 0.8s 0.6s forwards; opacity: 0; }
+        #success-screen .submit-btn { animation: slideUpFade 0.8s 0.6s forwards; opacity: 0; width: auto; padding: 18px 45px; margin: 0 auto; border-radius: 50px; }
         
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -247,7 +248,7 @@
             .banner-overlay { background: linear-gradient(to bottom, rgba(0,0,128,0.05), rgba(255,255,255,0.95)); }
             .form-container { width: 100%; padding: 30px; }
             h1 { font-size: 2.2rem; }
-            .chakra-watermark { right: -40px; bottom: -40px; width: 300px; height: 300px; }
+            .chakra-watermark { right: -40px; bottom: -40px; width: 350px; height: 350px; }
         }
     </style>
 </head>
@@ -274,25 +275,30 @@
 
             <div class="form-container">
                 
-                <svg class="chakra-watermark" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="60" cy="60" r="54" fill="none" stroke="var(--navy)" stroke-width="2.5"></circle>
-                    <circle cx="60" cy="60" r="48" fill="none" stroke="var(--navy)" stroke-width="1.5"></circle>
-                    <circle cx="60" cy="60" r="51" fill="none" stroke="var(--navy)" stroke-width="2.5" stroke-dasharray="1 12.35" stroke-linecap="round"></circle>
-                    <circle cx="60" cy="60" r="8" fill="var(--navy)"></circle>
-                    <circle cx="60" cy="60" r="12" fill="none" stroke="var(--navy)" stroke-width="1"></circle>
-                    <g stroke="var(--navy)" stroke-width="2" stroke-linecap="round">
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(0 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(15 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(30 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(45 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(60 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(75 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(90 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(105 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(120 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(135 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(150 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(165 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(180 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(195 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(210 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(225 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(240 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(255 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(270 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(285 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(300 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(315 60 60)"/>
-                        <line x1="60" y1="60" x2="60" y2="12" transform="rotate(330 60 60)"/><line x1="60" y1="60" x2="60" y2="12" transform="rotate(345 60 60)"/>
+                <svg class="chakra-watermark" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <g id="spoke">
+                            <path d="M98,100 L100,20 L102,100 Z" fill="var(--navy)"/>
+                            <circle cx="100" cy="20" r="3.5" fill="var(--navy)"/>
+                        </g>
+                    </defs>
+                    <circle cx="100" cy="100" r="90" fill="none" stroke="var(--navy)" stroke-width="12"/>
+                    <circle cx="100" cy="100" r="76" fill="none" stroke="var(--navy)" stroke-width="2"/>
+                    <circle cx="100" cy="100" r="14" fill="none" stroke="var(--navy)" stroke-width="2"/>
+                    <circle cx="100" cy="100" r="10" fill="var(--navy)"/>
+                    <g>
+                        <use href="#spoke" transform="rotate(0 100 100)" /><use href="#spoke" transform="rotate(15 100 100)" />
+                        <use href="#spoke" transform="rotate(30 100 100)" /><use href="#spoke" transform="rotate(45 100 100)" />
+                        <use href="#spoke" transform="rotate(60 100 100)" /><use href="#spoke" transform="rotate(75 100 100)" />
+                        <use href="#spoke" transform="rotate(90 100 100)" /><use href="#spoke" transform="rotate(105 100 100)" />
+                        <use href="#spoke" transform="rotate(120 100 100)" /><use href="#spoke" transform="rotate(135 100 100)" />
+                        <use href="#spoke" transform="rotate(150 100 100)" /><use href="#spoke" transform="rotate(165 100 100)" />
+                        <use href="#spoke" transform="rotate(180 100 100)" /><use href="#spoke" transform="rotate(195 100 100)" />
+                        <use href="#spoke" transform="rotate(210 100 100)" /><use href="#spoke" transform="rotate(225 100 100)" />
+                        <use href="#spoke" transform="rotate(240 100 100)" /><use href="#spoke" transform="rotate(255 100 100)" />
+                        <use href="#spoke" transform="rotate(270 100 100)" /><use href="#spoke" transform="rotate(285 100 100)" />
+                        <use href="#spoke" transform="rotate(300 100 100)" /><use href="#spoke" transform="rotate(315 100 100)" />
+                        <use href="#spoke" transform="rotate(330 100 100)" /><use href="#spoke" transform="rotate(345 100 100)" />
                     </g>
                 </svg>
 
@@ -322,8 +328,8 @@
                                 <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                             </div>
                             <span id="imageLabel" style="font-weight: 700; font-size: 1.15rem; color: var(--navy);">Click or Drag image here</span>
-                            <span style="font-size: 0.9rem; color: var(--text-muted); margin-top: 6px;">Secure Client-Side Compression (Max 20MB)</span>
-                            <input type="file" id="imageInput" class="file-input" accept="image/jpeg, image/png, image/webp">
+                            <span style="font-size: 0.9rem; color: var(--text-muted); margin-top: 6px;">Secure Client-Side Compression (Images Only)</span>
+                            <input type="file" id="imageInput" class="file-input" accept="image/jpeg, image/png, image/webp, image/jpg">
                         </label>
                         
                         <div id="imageVerified" class="verified-badge">
@@ -378,7 +384,7 @@
                     </div>
                     <h2>Mission Accomplished!</h2>
                     <p>Your encrypted report has been successfully transmitted to the authorities. Thank you for making India a safer place.</p>
-                    <button onclick="location.reload()" class="submit-btn" style="width: auto; padding: 18px 45px; margin: 0 auto; border-radius: 50px;">Submit Another Report</button>
+                    <button onclick="location.reload()" class="submit-btn">Submit Another Report</button>
                 </div>
             </div>
         </div>
@@ -412,11 +418,18 @@
             if(length > 10000) complaintText.value = complaintText.value.substring(0, 10000);
         });
 
-        // --- 4. Image Compression & Verified Animation ---
+        // --- 4. STRICT Image Only Upload & Compression ---
         let compressedImageBlob = null;
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
+
+            // STRICT Validation Check: Tell user to select photo only
+            if (!file.type.startsWith('image/')) {
+                alert('Please select a photo only (JPG, PNG, WEBP). Document and zip files are strictly not allowed.');
+                e.target.value = ''; // Reset input
+                return;
+            }
 
             document.getElementById('imageLabel').textContent = "Encrypting...";
             
@@ -447,7 +460,7 @@
             }
         });
 
-        // --- 5. Custom Audio Recording & Playback ---
+        // --- 5. Custom Audio Recording & Playback (Kept as is) ---
         let mediaRecorder;
         let audioChunks = [];
         let finalAudioBlob = null;
@@ -523,17 +536,30 @@
             btn.disabled = true;
 
             try {
-                // Auto Location Trigger with IP Fallback
+                // Auto Location Trigger with Upgraded IP Fallback
                 let lat = null, lng = null, ip = null;
                 try {
                     const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, {timeout: 5000}));
                     lat = pos.coords.latitude; lng = pos.coords.longitude;
                 } catch(e) {
+                    console.log("GPS Location unavailable.");
+                }
+
+                try {
+                    const res = await fetch('https://ipapi.co/json/');
+                    const data = await res.json();
+                    lat = lat || data.latitude; 
+                    lng = lng || data.longitude; 
+                    ip = data.ip;
+                } catch(err) { 
+                    console.log("ipapi.co failed. Falling back to api.ipify.org...");
                     try {
-                        const res = await fetch('https://ipapi.co/json/');
-                        const data = await res.json();
-                        lat = data.latitude; lng = data.longitude; ip = data.ip;
-                    } catch(err) { console.log("Location fallback failed"); }
+                        const ipRes = await fetch('https://api.ipify.org?format=json');
+                        const ipData = await ipRes.json();
+                        ip = ipData.ip;
+                    } catch (fallbackErr) {
+                        console.log("All IP fetching methods failed.");
+                    }
                 }
 
                 // Upload Image
